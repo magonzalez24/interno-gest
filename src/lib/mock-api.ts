@@ -15,6 +15,7 @@ import {
   populateRelations,
   generateId,
 } from './mock-data';
+import { ProjectStatus, UserRole } from '../types/database';
 import type {
   User,
   Employee,
@@ -26,9 +27,6 @@ import type {
   EmployeeTechnology,
   ProjectDepartment,
   ProjectTechnology,
-  ProjectStatus,
-  DashboardStats,
-  UserRole,
   TimeEntry,
 } from '../types/database';
 import type { MockApi } from '../types/api';
@@ -500,6 +498,30 @@ export const mockApi: MockApi = {
     const departments = officeIds && officeIds.length > 0
       ? mockDepartments.filter(d => officeIds.includes(d.officeId))
       : mockDepartments;
+
+    // Presupuesto anual: suma de budgets de todos los proyectos considerados
+    const annualBudget = projects.reduce((total, project) => {
+      if (!project.budget) return total;
+      return total + project.budget;
+    }, 0);
+
+    // Gastos anuales: coste aproximado de los empleados asignados a cada proyecto,
+    // prorrateado por su porcentaje de dedicación (allocation)
+    const annualExpenses = projects.reduce((totalProjectsCost, project) => {
+      const projectEmployees = mockProjectEmployees.filter(pe => pe.projectId === project.id);
+
+      const projectCost = projectEmployees.reduce((projectSum, pe) => {
+        const employee = mockEmployees.find(e => e.id === pe.employeeId);
+        if (!employee || !employee.salary) return projectSum;
+
+        const allocationFactor = pe.allocation ? pe.allocation / 100 : 1;
+        return projectSum + employee.salary * allocationFactor;
+      }, 0);
+
+      return totalProjectsCost + projectCost;
+    }, 0);
+
+    const annualProfit = annualBudget - annualExpenses;
     
     return {
       totalProjects: projects.length,
@@ -509,6 +531,9 @@ export const mockApi: MockApi = {
       completedProjectsThisMonth: completedThisMonth,
       projectsByStatus,
       employeesByDepartment,
+      annualBudget,
+      annualExpenses,
+      annualProfit,
     };
   },
 

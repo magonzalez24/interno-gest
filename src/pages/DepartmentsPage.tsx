@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useDepartments } from '@/hooks/useDepartments';
 import { useOffices } from '@/contexts/OfficeContext';
 import { useAuth } from '@/contexts/AuthContext';

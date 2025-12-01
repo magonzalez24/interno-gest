@@ -1,4 +1,4 @@
-import { Search, Bell, User } from 'lucide-react';
+import { Bell, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -13,10 +13,19 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { OfficeSwitcher } from './OfficeSwitcher';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
 
   const handleLogout = async () => {
     await logout();
@@ -35,17 +44,47 @@ export const Navbar = () => {
     return user?.email[0].toUpperCase() || 'U';
   };
 
+  const handleChangeLanguage = (lng: 'es' | 'en' | 'pt') => {
+    if (i18n.language === lng) {
+      return;
+    }
+    void i18n.changeLanguage(lng);
+  };
+
   return (
     <div className="flex h-16 items-center justify-between border-b bg-background px-6">
       <div className="flex items-center gap-4">
         <Input
           type="search"
-          placeholder="Buscar..."
+          placeholder={t('navbar.searchPlaceholder')}
           className="w-[300px]"
         />
       </div>
       
       <div className="flex items-center gap-4">
+        <Select
+          value={
+            i18n.language.startsWith('es')
+              ? 'es'
+              : i18n.language.startsWith('en')
+              ? 'en'
+              : 'pt'
+          }
+          onValueChange={(value) => handleChangeLanguage(value as 'es' | 'en' | 'pt')}
+        >
+          <SelectTrigger
+            className="w-[130px]"
+            aria-label="Selector de idioma"
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="es">ES</SelectItem>
+            <SelectItem value="en">EN</SelectItem>
+            <SelectItem value="pt">PT</SelectItem>
+          </SelectContent>
+        </Select>
+
         <OfficeSwitcher />
         
         <button className="relative rounded-full p-2 hover:bg-accent">
@@ -75,18 +114,18 @@ export const Navbar = () => {
             <DropdownMenuItem asChild>
               <Link to="/profile">
                 <User className="mr-2 h-4 w-4" />
-                Mi Perfil
+                {t('navbar.profile')}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to="/settings">
                 <User className="mr-2 h-4 w-4" />
-                Configuración
+                {t('navbar.settings')}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
-              Cerrar Sesión
+              {t('navbar.logout')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

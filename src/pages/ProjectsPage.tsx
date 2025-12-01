@@ -8,14 +8,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useProjects } from '@/hooks/useProjects';
 import { useOffices } from '@/contexts/OfficeContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { permissions } from '@/lib/permissions';
 import { ProjectStatus } from '@/types/database';
 import { Plus } from 'lucide-react';
 import { formatDateShort } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 export const ProjectsPage = () => {
   const { user } = useAuth();
   const { selectedOffice } = useOffices();
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   
@@ -67,44 +68,44 @@ export const ProjectsPage = () => {
   };
 
   if (loading) {
-    return <div>Cargando proyectos...</div>;
+    return <div>{t('common.loading')}</div>;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Proyectos</h1>
+          <h1 className="text-3xl font-bold">{t('projects.title')}</h1>
           <p className="text-muted-foreground mt-2">
-            Gestiona todos tus proyectos
+            {t('projects.subtitle')}
           </p>
         </div>
           <Link to="/projects/new">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Nuevo Proyecto
+              {t('projects.newProject')}
             </Button>
           </Link>
       </div>
 
       <div className="flex gap-4">
         <Input
-          placeholder="Buscar proyectos..."
+          placeholder={t('projects.searchPlaceholder', 'Buscar proyectos...')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-sm"
         />
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Estado" />
+            <SelectValue placeholder={t('projects.statusPlaceholder', 'Estado')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            <SelectItem value={ProjectStatus.PLANNING}>Planificación</SelectItem>
-            <SelectItem value={ProjectStatus.ACTIVE}>Activo</SelectItem>
-            <SelectItem value={ProjectStatus.ON_HOLD}>En Pausa</SelectItem>
-            <SelectItem value={ProjectStatus.COMPLETED}>Completado</SelectItem>
-            <SelectItem value={ProjectStatus.CANCELLED}>Cancelado</SelectItem>
+            <SelectItem value="all">{t('projects.filter.all', 'Todos')}</SelectItem>
+            <SelectItem value={ProjectStatus.PLANNING}>{t('projects.filter.planning', 'Planificación')}</SelectItem>
+            <SelectItem value={ProjectStatus.ACTIVE}>{t('projects.filter.active', 'Activo')}</SelectItem>
+            <SelectItem value={ProjectStatus.ON_HOLD}>{t('projects.filter.onHold', 'En Pausa')}</SelectItem>
+            <SelectItem value={ProjectStatus.COMPLETED}>{t('projects.filter.completed', 'Completado')}</SelectItem>
+            <SelectItem value={ProjectStatus.CANCELLED}>{t('projects.filter.cancelled', 'Cancelado')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -112,7 +113,9 @@ export const ProjectsPage = () => {
       {filteredProjects.length === 0 ? (
         <Card>
           <CardContent className="py-10 text-center">
-            <p className="text-muted-foreground">No se encontraron proyectos</p>
+            <p className="text-muted-foreground">
+              {t('projects.noProjects')}
+            </p>
           </CardContent>
         </Card>
       ) : (
@@ -120,7 +123,9 @@ export const ProjectsPage = () => {
           {/* Proyectos Internos */}
           {internalProjects.length > 0 && (
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold">Proyectos Internos</h2>
+              <h2 className="text-xl font-semibold">
+                {t('projects.internalTitle')}
+              </h2>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {internalProjects.map((project) => (
                   <Link key={project.id} to={`/projects/${project.id}`}>
@@ -132,7 +137,9 @@ export const ProjectsPage = () => {
                             {project.status}
                           </Badge>
                         </div>
-                        <CardDescription>Proyecto interno</CardDescription>
+                        <CardDescription>
+                          {t('projects.internalLabel')}
+                        </CardDescription>
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-2">
@@ -148,9 +155,15 @@ export const ProjectsPage = () => {
                             </span>
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            <p>Inicio: {formatDateShort(project.startDate)}</p>
+                            <p>
+                              {t('projects.startDate')}:{' '}
+                              {formatDateShort(project.startDate)}
+                            </p>
                             {project.endDate && (
-                              <p>Fin: {formatDateShort(project.endDate)}</p>
+                              <p>
+                                {t('projects.endDate')}:{' '}
+                                {formatDateShort(project.endDate)}
+                              </p>
                             )}
                           </div>
                           {project.departments && project.departments.length > 0 && (
@@ -174,7 +187,9 @@ export const ProjectsPage = () => {
           {/* Proyectos Externos */}
           {externalProjects.length > 0 && (
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold">Proyectos Externos</h2>
+              <h2 className="text-xl font-semibold">
+                {t('projects.externalTitle')}
+              </h2>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {externalProjects.map((project) => (
                   <Link key={project.id} to={`/projects/${project.id}`}>
@@ -186,7 +201,10 @@ export const ProjectsPage = () => {
                             {project.status}
                           </Badge>
                         </div>
-                        <CardDescription>{project.clientName || 'Cliente externo'}</CardDescription>
+                        <CardDescription>
+                          {project.clientName ||
+                            t('projects.externalClientFallback')}
+                        </CardDescription>
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-2">
@@ -202,9 +220,15 @@ export const ProjectsPage = () => {
                             </span>
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            <p>Inicio: {formatDateShort(project.startDate)}</p>
+                            <p>
+                              {t('projects.startDate')}:{' '}
+                              {formatDateShort(project.startDate)}
+                            </p>
                             {project.endDate && (
-                              <p>Fin: {formatDateShort(project.endDate)}</p>
+                              <p>
+                                {t('projects.endDate')}:{' '}
+                                {formatDateShort(project.endDate)}
+                              </p>
                             )}
                           </div>
                           {project.departments && project.departments.length > 0 && (

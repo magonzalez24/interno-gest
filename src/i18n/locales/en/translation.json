@@ -1,0 +1,330 @@
+{
+  "app": {
+    "name": "Excelia",
+    "welcome": "Welcome to Excelia",
+    "description": "Project and workforce management system"
+  },
+  "common": {
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "auth": {
+    "login": "Log In",
+    "loggingIn": "Logging in...",
+    "loginTitle": "Log In",
+    "loginDescription": "Enter your credentials to access",
+    "email": "Email",
+    "password": "Password",
+    "testUsers": "Test users:",
+    "loginSuccessTitle": "Login successful",
+    "loginSuccessDescription": "Welcome to Excelia",
+    "loginErrorTitle": "Authentication error",
+    "loginErrorDescription": "Invalid credentials"
+  },
+  "navbar": {
+    "searchPlaceholder": "Search...",
+    "profile": "My Profile",
+    "settings": "Settings",
+    "logout": "Log Out"
+  },
+  "sidebar": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "timeEntries": "Time entries",
+    "employees": "Employees",
+    "departments": "Departments",
+    "technologies": "Technologies",
+    "reports": "Reports",
+    "offices": "Offices",
+    "users": "Users",
+    "settings": "Settings"
+  },
+  "home": {
+    "title": "Welcome to Excelia",
+    "subtitle": "Project and workforce management system",
+    "myProjects": {
+      "title": "My Projects",
+      "description": "View assigned projects"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "View metrics and statistics"
+    },
+    "myTeam": {
+      "title": "My Team",
+      "description": "View team members"
+    },
+    "technologies": {
+      "title": "Technologies",
+      "description": "Explore technologies"
+    }
+  },
+  "projects": {
+    "title": "Projects",
+    "subtitle": "Manage all your projects",
+    "newProject": "New Project",
+    "searchPlaceholder": "Search projects...",
+    "statusPlaceholder": "Status",
+    "filter": {
+      "all": "All",
+      "planning": "Planning",
+      "active": "Active",
+      "onHold": "On Hold",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "noProjects": "No projects found",
+    "internalTitle": "Internal Projects",
+    "externalTitle": "External Projects",
+    "internalLabel": "Internal project",
+    "externalClientFallback": "External client",
+    "startDate": "Start",
+    "endDate": "End"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitleAll": "Global view of all offices",
+    "subtitleOffice": "View of {{office}}",
+    "subtitleFallbackOffice": "selected office",
+    "cards": {
+      "totalProjects": {
+        "title": "Total Projects",
+        "subtitle": "{{count}} active"
+      },
+      "employees": {
+        "title": "Employees",
+        "subtitle": "Across all offices"
+      },
+      "departments": {
+        "title": "Departments",
+        "subtitle": "Active departments"
+      },
+      "completed": {
+        "title": "Completed",
+        "subtitle": "This month"
+      },
+      "annualBudget": {
+        "title": "Annual budget",
+        "subtitle": "Sum of all project budgets"
+      },
+      "annualExpenses": {
+        "title": "Annual expenses",
+        "subtitle": "Estimated employee cost on projects"
+      },
+      "annualProfit": {
+        "title": "Annual profit",
+        "subtitle": "Difference between budget and expenses"
+      }
+    },
+    "noData": "No data available",
+    "sections": {
+      "projectsByStatus": "Projects by Status",
+      "employeesByDepartment": "Employees by Department"
+    }
+  },
+  "employees": {
+    "title": "Employees",
+    "subtitle": "Manage your workforce",
+    "new": "New Employee",
+    "searchPlaceholder": "Search employees...",
+    "noResults": "No employees found",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "onLeave": "On leave",
+      "terminated": "Terminated"
+    },
+    "categories": {
+      "management": "Management",
+      "development": "Development",
+      "devops": "DevOps",
+      "qa": "QA",
+      "design": "Design",
+      "product": "Product & Delivery",
+      "other": "Other"
+    }
+  },
+  "employeeDetail": {
+    "edit": "Edit",
+    "loading": "Loading employee...",
+    "notFound": "Employee not found",
+    "tabs": {
+      "info": "Information",
+      "technologies": "Technologies",
+      "projects": "Projects"
+    },
+    "personalInfo": "Personal Information",
+    "email": "Email",
+    "phone": "Phone",
+    "office": "Office",
+    "department": "Department",
+    "noDepartment": "No department",
+    "hireDate": "Hire Date",
+    "status": "Status",
+    "workload": {
+      "title": "Workload",
+      "currentAllocation": "Current Allocation",
+      "available": "{{percent}}% available"
+    },
+    "techStack": {
+      "title": "Tech Stack",
+      "years": "{{years}} years of experience",
+      "empty": "No technologies assigned"
+    },
+    "projects": {
+      "title": "Current Projects",
+      "empty": "No active projects"
+    }
+  },
+  "employeeForm": {
+    "titleNew": "New Employee",
+    "titleEdit": "Edit Employee",
+    "cardTitle": "Employee Information",
+    "fields": {
+      "name": "Name *",
+      "position": "Position *",
+      "office": "Office *",
+      "officePlaceholder": "Select office",
+      "department": "Department",
+      "departmentPlaceholder": "Select department",
+      "noDepartment": "No department",
+      "phone": "Phone",
+      "status": "Status",
+      "hireDate": "Hire Date *"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "onLeave": "On Leave",
+      "terminated": "Terminated"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "save": "Save"
+    },
+    "toasts": {
+      "createdTitle": "Employee created",
+      "createdDescription": "The employee has been created successfully",
+      "updatedTitle": "Employee updated",
+      "updatedDescription": "The employee has been updated successfully",
+      "errorTitle": "Error",
+      "errorDescription": "Error while saving the employee"
+    }
+  },
+  "departmentsPage": {
+    "title": "Departments",
+    "subtitle": "Manage the company's departments",
+    "noDescription": "No description",
+    "loading": "Loading departments..."
+  },
+  "officesPage": {
+    "title": "Offices",
+    "subtitle": "Manage company offices",
+    "loading": "Loading offices..."
+  },
+  "profilePage": {
+    "title": "My Profile",
+    "subtitle": "Manage your personal information",
+    "email": "Email",
+    "office": "Office",
+    "department": "Department",
+    "noDepartment": "No department"
+  },
+  "projectDetail": {
+    "edit": "Edit",
+    "loading": "Loading project...",
+    "notFound": "Project not found",
+    "tabs": {
+      "overview": "Overview",
+      "team": "Team",
+      "departments": "Departments",
+      "technologies": "Technologies"
+    },
+    "overview": {
+      "title": "General Information",
+      "description": "Description",
+      "noDescription": "No description",
+      "status": "Status",
+      "priority": "Priority",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "budget": "Budget",
+      "expense": "Expense",
+      "office": "Office"
+    },
+    "team": {
+      "title": "Project Team",
+      "addMember": "Add Team Member",
+      "hours": "{{hours}} hours",
+      "empty": "No employees assigned"
+    },
+    "departments": {
+      "title": "Departments",
+      "empty": "No departments assigned"
+    },
+    "technologies": {
+      "title": "Technologies",
+      "empty": "No technologies assigned"
+    }
+  },
+  "reportsPage": {
+    "title": "Reports",
+    "subtitle": "Generate and view system reports",
+    "cardTitle": "Available Reports",
+    "comingSoon": "Reports will be available soon"
+  },
+  "settingsPage": {
+    "title": "Settings",
+    "subtitle": "Manage your account settings",
+    "cardTitle": "Preferences",
+    "comingSoon": "Settings options will be available soon"
+  },
+  "technologiesPage": {
+    "title": "Technologies",
+    "subtitle": "Explore technologies used in the company",
+    "searchPlaceholder": "Search technologies...",
+    "noResults": "No technologies found with the current filters.",
+    "peopleKnow": "{{count}} person knows this technology",
+    "peopleKnow_plural": "{{count}} people know this technology"
+  },
+  "timeEntriesPage": {
+    "title": "Time Entries",
+    "subtitle": "See your logged hours in a weekly calendar",
+    "new": "New",
+    "loading": "Loading time entries...",
+    "noEmployee": "Employee information not found",
+    "noEntriesTitle": "No time entries yet. Create a new one to get started.",
+    "view": {
+      "week": "Week",
+      "month": "Month"
+    },
+    "labels": {
+      "month": "Month",
+      "prevMonth": "Previous month",
+      "nextMonth": "Next month",
+      "prevWeek": "Previous week",
+      "nextWeek": "Next week",
+      "weekRange": "Week from {{from}} to {{to}}"
+    },
+    "table": {
+      "noEntries": "No entries",
+      "projectFallback": "Project"
+    }
+  },
+  "usersPage": {
+    "title": "Users",
+    "subtitle": "Manage system users",
+    "cardTitle": "User List",
+    "idLabel": "ID",
+    "roles": {
+      "director": "Director",
+      "manager": "Manager",
+      "employee": "Employee"
+    }
+  }
+}
+
+

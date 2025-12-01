@@ -10,14 +10,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
 import { mockApi } from '@/lib/mock-api';
 import { useOffices } from '@/contexts/OfficeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { useTechnologies } from '@/hooks/useTechnologies';
-import { useEmployees } from '@/hooks/useEmployees';
-import type { Project, Technology, Employee } from '@/types/database';
+import type { Employee } from '@/types/database';
 import { EmployeeStatus } from '@/types/database';
 import { ArrowLeft, X, Plus } from 'lucide-react';
 
@@ -26,6 +24,8 @@ interface TeamMember {
   role: string;
   allocation: number;
 }
+
+type ProjectFormValues = import('zod').infer<typeof projectSchema>;
 
 export const ProjectFormPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -51,13 +51,13 @@ export const ProjectFormPage = () => {
     formState: { errors },
     setValue,
     watch,
-  } = useForm({
+  } = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       name: '',
       description: '',
-      status: 'PLANNING' as const,
-      priority: 'MEDIUM' as const,
+      status: 'PLANNING',
+      priority: 'MEDIUM',
       startDate: new Date(),
       endDate: null,
       clientName: '',

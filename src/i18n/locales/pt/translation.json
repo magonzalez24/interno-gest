@@ -1,0 +1,330 @@
+{
+  "app": {
+    "name": "Excelia",
+    "welcome": "Bem-vindo à Excelia",
+    "description": "Sistema de gestão de projetos e colaboradores"
+  },
+  "common": {
+    "loading": "Carregando...",
+    "cancel": "Cancelar",
+    "save": "Guardar"
+  },
+  "auth": {
+    "login": "Iniciar sessão",
+    "loggingIn": "A iniciar sessão...",
+    "loginTitle": "Iniciar sessão",
+    "loginDescription": "Introduz as tuas credenciais para aceder",
+    "email": "Email",
+    "password": "Palavra-passe",
+    "testUsers": "Utilizadores de teste:",
+    "loginSuccessTitle": "Sessão iniciada com sucesso",
+    "loginSuccessDescription": "Bem-vindo à Excelia",
+    "loginErrorTitle": "Erro de autenticação",
+    "loginErrorDescription": "Credenciais inválidas"
+  },
+  "navbar": {
+    "searchPlaceholder": "Procurar...",
+    "profile": "O meu perfil",
+    "settings": "Configuração",
+    "logout": "Terminar sessão"
+  },
+  "sidebar": {
+    "home": "Início",
+    "dashboard": "Dashboard",
+    "projects": "Projetos",
+    "timeEntries": "Imputação",
+    "employees": "Colaboradores",
+    "departments": "Departamentos",
+    "technologies": "Tecnologias",
+    "reports": "Relatórios",
+    "offices": "Sedes",
+    "users": "Utilizadores",
+    "settings": "Configuração"
+  },
+  "home": {
+    "title": "Bem-vindo à Excelia",
+    "subtitle": "Sistema de gestão de projetos e colaboradores",
+    "myProjects": {
+      "title": "Os meus projetos",
+      "description": "Ver projetos atribuídos"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Ver métricas e estatísticas"
+    },
+    "myTeam": {
+      "title": "A minha equipa",
+      "description": "Ver membros da equipa"
+    },
+    "technologies": {
+      "title": "Tecnologias",
+      "description": "Explorar tecnologias"
+    }
+  },
+  "projects": {
+    "title": "Projetos",
+    "subtitle": "Gere todos os teus projetos",
+    "newProject": "Novo projeto",
+    "searchPlaceholder": "Procurar projetos...",
+    "statusPlaceholder": "Estado",
+    "filter": {
+      "all": "Todos",
+      "planning": "Planeamento",
+      "active": "Ativo",
+      "onHold": "Em pausa",
+      "completed": "Concluído",
+      "cancelled": "Cancelado"
+    },
+    "noProjects": "Nenhum projeto encontrado",
+    "internalTitle": "Projetos internos",
+    "externalTitle": "Projetos externos",
+    "internalLabel": "Projeto interno",
+    "externalClientFallback": "Cliente externo",
+    "startDate": "Início",
+    "endDate": "Fim"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitleAll": "Vista global de todas as sedes",
+    "subtitleOffice": "Vista de {{office}}",
+    "subtitleFallbackOffice": "sede selecionada",
+    "cards": {
+      "totalProjects": {
+        "title": "Total de projetos",
+        "subtitle": "{{count}} ativos"
+      },
+      "employees": {
+        "title": "Colaboradores",
+        "subtitle": "Em todas as sedes"
+      },
+      "departments": {
+        "title": "Departamentos",
+        "subtitle": "Departamentos ativos"
+      },
+      "completed": {
+        "title": "Concluídos",
+        "subtitle": "Este mês"
+      },
+      "annualBudget": {
+        "title": "Orçamento anual",
+        "subtitle": "Soma do orçamento de todos os projetos"
+      },
+      "annualExpenses": {
+        "title": "Despesas anuais",
+        "subtitle": "Custo estimado dos colaboradores nos projetos"
+      },
+      "annualProfit": {
+        "title": "Lucro anual",
+        "subtitle": "Diferença entre orçamento e despesas"
+      }
+    },
+    "noData": "Não existem dados disponíveis",
+    "sections": {
+      "projectsByStatus": "Projetos por estado",
+      "employeesByDepartment": "Colaboradores por departamento"
+    }
+  },
+  "employees": {
+    "title": "Colaboradores",
+    "subtitle": "Gere a equipa de trabalho",
+    "new": "Novo colaborador",
+    "searchPlaceholder": "Procurar colaboradores...",
+    "noResults": "Nenhum colaborador encontrado",
+    "status": {
+      "active": "Ativo",
+      "inactive": "Inativo",
+      "onLeave": "Em licença",
+      "terminated": "Terminado"
+    },
+    "categories": {
+      "management": "Direção",
+      "development": "Desenvolvimento",
+      "devops": "DevOps",
+      "qa": "QA",
+      "design": "Design",
+      "product": "Gestão",
+      "other": "Outros"
+    }
+  },
+  "employeeDetail": {
+    "edit": "Editar",
+    "loading": "A carregar colaborador...",
+    "notFound": "Colaborador não encontrado",
+    "tabs": {
+      "info": "Informação",
+      "technologies": "Tecnologias",
+      "projects": "Projetos"
+    },
+    "personalInfo": "Informação pessoal",
+    "email": "Email",
+    "phone": "Telefone",
+    "office": "Sede",
+    "department": "Departamento",
+    "noDepartment": "Sem departamento",
+    "hireDate": "Data de entrada",
+    "status": "Estado",
+    "workload": {
+      "title": "Carga de trabalho",
+      "currentAllocation": "Dedicação atual",
+      "available": "{{percent}}% disponível"
+    },
+    "techStack": {
+      "title": "Stack tecnológico",
+      "years": "{{years}} anos de experiência",
+      "empty": "Não existem tecnologias atribuídas"
+    },
+    "projects": {
+      "title": "Projetos atuais",
+      "empty": "Não existem projetos ativos"
+    }
+  },
+  "employeeForm": {
+    "titleNew": "Novo colaborador",
+    "titleEdit": "Editar colaborador",
+    "cardTitle": "Informação do colaborador",
+    "fields": {
+      "name": "Nome *",
+      "position": "Função *",
+      "office": "Sede *",
+      "officePlaceholder": "Selecionar sede",
+      "department": "Departamento",
+      "departmentPlaceholder": "Selecionar departamento",
+      "noDepartment": "Sem departamento",
+      "phone": "Telefone",
+      "status": "Estado",
+      "hireDate": "Data de entrada *"
+    },
+    "status": {
+      "active": "Ativo",
+      "inactive": "Inativo",
+      "onLeave": "Em licença",
+      "terminated": "Terminado"
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "saving": "A guardar...",
+      "save": "Guardar"
+    },
+    "toasts": {
+      "createdTitle": "Colaborador criado",
+      "createdDescription": "O colaborador foi criado com sucesso",
+      "updatedTitle": "Colaborador atualizado",
+      "updatedDescription": "O colaborador foi atualizado com sucesso",
+      "errorTitle": "Erro",
+      "errorDescription": "Erro ao guardar o colaborador"
+    }
+  },
+  "departmentsPage": {
+    "title": "Departamentos",
+    "subtitle": "Gere os departamentos da empresa",
+    "noDescription": "Sem descrição",
+    "loading": "A carregar departamentos..."
+  },
+  "officesPage": {
+    "title": "Sedes",
+    "subtitle": "Gere as sedes da empresa",
+    "loading": "A carregar sedes..."
+  },
+  "profilePage": {
+    "title": "O meu perfil",
+    "subtitle": "Gere a tua informação pessoal",
+    "email": "Email",
+    "office": "Sede",
+    "department": "Departamento",
+    "noDepartment": "Sem departamento"
+  },
+  "projectDetail": {
+    "edit": "Editar",
+    "loading": "A carregar projeto...",
+    "notFound": "Projeto não encontrado",
+    "tabs": {
+      "overview": "Resumo",
+      "team": "Equipa",
+      "departments": "Departamentos",
+      "technologies": "Tecnologias"
+    },
+    "overview": {
+      "title": "Informação geral",
+      "description": "Descrição",
+      "noDescription": "Sem descrição",
+      "status": "Estado",
+      "priority": "Prioridade",
+      "startDate": "Data de início",
+      "endDate": "Data de fim",
+      "budget": "Orçamento",
+      "expense": "Despesa",
+      "office": "Sede"
+    },
+    "team": {
+      "title": "Equipa do projeto",
+      "addMember": "Adicionar colega",
+      "hours": "{{hours}} horas",
+      "empty": "Não existem colaboradores atribuídos"
+    },
+    "departments": {
+      "title": "Departamentos",
+      "empty": "Não existem departamentos atribuídos"
+    },
+    "technologies": {
+      "title": "Tecnologias",
+      "empty": "Não existem tecnologias atribuídas"
+    }
+  },
+  "reportsPage": {
+    "title": "Relatórios",
+    "subtitle": "Gera e visualiza relatórios do sistema",
+    "cardTitle": "Relatórios disponíveis",
+    "comingSoon": "Os relatórios estarão disponíveis em breve"
+  },
+  "settingsPage": {
+    "title": "Configuração",
+    "subtitle": "Gere a configuração da tua conta",
+    "cardTitle": "Preferências",
+    "comingSoon": "As opções de configuração estarão disponíveis em breve"
+  },
+  "technologiesPage": {
+    "title": "Tecnologias",
+    "subtitle": "Explora as tecnologias utilizadas na empresa",
+    "searchPlaceholder": "Procurar tecnologias...",
+    "noResults": "Não foram encontradas tecnologias com os filtros atuais.",
+    "peopleKnow": "{{count}} pessoa conhece esta tecnologia",
+    "peopleKnow_plural": "{{count}} pessoas conhecem esta tecnologia"
+  },
+  "timeEntriesPage": {
+    "title": "Imputações",
+    "subtitle": "Vê as tuas horas imputadas num calendário semanal",
+    "new": "Novo",
+    "loading": "A carregar imputações...",
+    "noEmployee": "Não foi encontrada informação do colaborador",
+    "noEntriesTitle": "Não existem imputações registadas. Cria uma nova imputação para começar.",
+    "view": {
+      "week": "Semana",
+      "month": "Mês"
+    },
+    "labels": {
+      "month": "Mês",
+      "prevMonth": "Mês anterior",
+      "nextMonth": "Mês seguinte",
+      "prevWeek": "Semana anterior",
+      "nextWeek": "Semana seguinte",
+      "weekRange": "Semana de {{from}} a {{to}}"
+    },
+    "table": {
+      "noEntries": "Sem imputações",
+      "projectFallback": "Projeto"
+    }
+  },
+  "usersPage": {
+    "title": "Utilizadores",
+    "subtitle": "Gere os utilizadores do sistema",
+    "cardTitle": "Lista de utilizadores",
+    "idLabel": "ID",
+    "roles": {
+      "director": "Diretor",
+      "manager": "Manager",
+      "employee": "Colaborador"
+    }
+  }
+}
+
+

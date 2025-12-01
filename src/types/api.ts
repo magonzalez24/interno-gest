@@ -8,6 +8,7 @@ import type {
   ProjectEmployee,
   EmployeeTechnology,
   ProjectDepartment,
+  ProjectTechnology,
   ProjectStatus,
   DashboardStats,
   TimeEntry

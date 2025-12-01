@@ -9,6 +9,12 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { useToast } from '../ui/use-toast';
+import { useTranslation } from 'react-i18next';
+
+type LoginFormValues = {
+  email: string;
+  password: string;
+};
 
 const testUsers = [
   { email: 'director@excelia.com', password: 'password123', role: 'DIRECTOR' },
@@ -22,28 +28,32 @@ export const LoginForm = () => {
   const { login } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslation();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: { email: string; password: string }) => {
+  const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
     try {
       await login(data.email, data.password);
       toast({
-        title: 'Inicio de sesión exitoso',
-        description: 'Bienvenido a Excelia',
+        title: t('auth.loginSuccessTitle'),
+        description: t('auth.loginSuccessDescription'),
       });
       navigate('/');
     } catch (error) {
       toast({
-        title: 'Error de autenticación',
-        description: error instanceof Error ? error.message : 'Credenciales inválidas',
+        title: t('auth.loginErrorTitle'),
+        description:
+          error instanceof Error
+            ? error.message
+            : t('auth.loginErrorDescription'),
         variant: 'destructive',
       });
     } finally {
@@ -60,47 +70,55 @@ export const LoginForm = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
-            <div className="text-2xl font-bold text-primary">Excelia</div>
+            <div className="text-2xl font-bold text-primary">
+              {t('app.name')}
+            </div>
           </div>
-          <CardTitle className="text-2xl text-center">Iniciar Sesión</CardTitle>
+          <CardTitle className="text-2xl text-center">
+            {t('auth.loginTitle')}
+          </CardTitle>
           <CardDescription className="text-center">
-            Ingresa tus credenciales para acceder
+            {t('auth.loginDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('auth.email')}</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="tu@email.com"
                 {...register('email')}
               />
-              {errors.email && (
-                <p className="text-sm text-destructive">{errors.email.message}</p>
+              {errors.email?.message && (
+                <p className="text-sm text-destructive">
+                  {String(errors.email.message)}
+                </p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
+              <Label htmlFor="password">{t('auth.password')}</Label>
               <Input
                 id="password"
                 type="password"
                 placeholder="••••••••"
                 {...register('password')}
               />
-              {errors.password && (
-                <p className="text-sm text-destructive">{errors.password.message}</p>
+              {errors.password?.message && (
+                <p className="text-sm text-destructive">
+                  {String(errors.password.message)}
+                </p>
               )}
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+              {isLoading ? t('auth.loggingIn') : t('auth.login')}
             </Button>
           </form>
 
           <div className="mt-6 pt-6 border-t">
             <p className="text-sm text-muted-foreground mb-3 text-center">
-              Usuarios de prueba:
+              {t('auth.testUsers')}
             </p>
             <div className="space-y-2">
               {testUsers.map((user) => (

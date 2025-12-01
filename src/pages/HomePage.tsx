@@ -1,37 +1,39 @@
 import { Link } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FolderKanban, Users, LayoutDashboard, Code } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserRole } from '@/types/database';
+import { useTranslation } from 'react-i18next';
 
 export const HomePage = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const quickLinks = [
     {
-      title: 'Mis Proyectos',
-      description: 'Ver proyectos asignados',
+      title: t('home.myProjects.title'),
+      description: t('home.myProjects.description'),
       href: '/projects',
       icon: FolderKanban,
       roles: [UserRole.EMPLOYEE],
     },
     {
-      title: 'Dashboard',
-      description: 'Ver métricas y estadísticas',
+      title: t('home.dashboard.title'),
+      description: t('home.dashboard.description'),
       href: '/dashboard',
       icon: LayoutDashboard,
       roles: [UserRole.MANAGER, UserRole.DIRECTOR],
     },
     {
-      title: 'Mi Equipo',
-      description: 'Ver miembros del equipo',
+      title: t('home.myTeam.title'),
+      description: t('home.myTeam.description'),
       href: '/employees',
       icon: Users,
       roles: [UserRole.MANAGER, UserRole.DIRECTOR],
     },
     {
-      title: 'Tecnologías',
-      description: 'Explorar tecnologías',
+      title: t('home.technologies.title'),
+      description: t('home.technologies.description'),
       href: '/technologies',
       icon: Code,
     },
@@ -45,9 +47,9 @@ export const HomePage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Bienvenido a Excelia</h1>
+        <h1 className="text-3xl font-bold">{t('home.title')}</h1>
         <p className="text-muted-foreground mt-2">
-          Sistema de gestión de proyectos y trabajadores
+          {t('home.subtitle')}
         </p>
       </div>
 

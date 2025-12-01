@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTechnologies } from '@/hooks/useTechnologies';
 import { TechCategory } from '@/types/database';
 import { mockEmployeeTechnologies } from '@/lib/mock-data';
@@ -34,6 +35,9 @@ export const TechnologiesPage = () => {
     return <div>Cargando tecnologías...</div>;
   }
 
+  const categoriesEntries = Object.entries(techsByCategory);
+  const defaultCategory = categoriesEntries[0]?.[0] ?? '';
+
   return (
     <div className="space-y-6">
       <div>
@@ -49,35 +53,54 @@ export const TechnologiesPage = () => {
         onChange={(e) => setSearchTerm(e.target.value)}
         className="max-w-sm"
       />
-
-      {Object.entries(techsByCategory).map(([category, techs]) => (
-        <div key={category} className="space-y-4">
-          <h2 className="text-xl font-semibold">{category}</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {techs.map((tech) => (
-              <Card key={tech.id} className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <CardTitle className="text-lg">{tech.name}</CardTitle>
-                  <CardDescription>
-                    <Badge variant="outline">{tech.category}</Badge>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {tech.color && (
-                    <div
-                      className="h-4 w-full rounded"
-                      style={{ backgroundColor: tech.color }}
-                    />
-                  )}
-                  <div className="text-sm text-muted-foreground">
-                    {employeeCountByTech[tech.id] || 0} {employeeCountByTech[tech.id] === 1 ? 'personaje' : 'personajes'} conoce{employeeCountByTech[tech.id] !== 1 ? 'n' : ''} esta tecnología
-                  </div>
-                </CardContent>
-              </Card>
+      
+      {categoriesEntries.length === 0 ? (
+        <Card>
+          <CardContent className="py-10 text-center text-sm text-muted-foreground">
+            No se han encontrado tecnologías con los filtros actuales.
+          </CardContent>
+        </Card>
+      ) : (
+        <Tabs defaultValue={defaultCategory} className="space-y-4">
+          <TabsList>
+            {categoriesEntries.map(([category]) => (
+              <TabsTrigger key={category} value={category}>
+                {category}
+              </TabsTrigger>
             ))}
-          </div>
-        </div>
-      ))}
+          </TabsList>
+
+          {categoriesEntries.map(([category, techs]) => (
+            <TabsContent key={category} value={category} className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {techs.map((tech) => (
+                  <Card key={tech.id} className="transition-shadow hover:shadow-md">
+                    <CardHeader>
+                      <CardTitle className="text-lg">{tech.name}</CardTitle>
+                      <CardDescription>
+                        <Badge variant="outline">{tech.category}</Badge>
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {tech.color && (
+                        <div
+                          className="h-4 w-full rounded"
+                          style={{ backgroundColor: tech.color }}
+                        />
+                      )}
+                      <div className="text-sm text-muted-foreground">
+                        {employeeCountByTech[tech.id] || 0}{' '}
+                        {employeeCountByTech[tech.id] === 1 ? 'personaje' : 'personajes'} conoce
+                        {employeeCountByTech[tech.id] !== 1 ? 'n' : ''} esta tecnología
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+          ))}
+        </Tabs>
+      )}
     </div>
   );
 };

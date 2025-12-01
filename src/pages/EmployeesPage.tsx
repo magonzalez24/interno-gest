@@ -5,10 +5,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEmployees } from '@/hooks/useEmployees';
 import { useOffices } from '@/contexts/OfficeContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { permissions } from '@/lib/permissions';
 import { Plus } from 'lucide-react';
 import { EmployeeStatus } from '@/types/database';
 
@@ -107,6 +107,12 @@ export const EmployeesPage = () => {
     return <div>Cargando empleados...</div>;
   }
 
+  const categoriesEntries = sortedCategories.map((category) => [
+    category,
+    employeesByPosition[category],
+  ] as const);
+  const defaultCategory = categoriesEntries[0]?.[0] ?? '';
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -138,16 +144,23 @@ export const EmployeesPage = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-6">
-          {sortedCategories.map((category) => (
-            <div key={category} className="space-y-4">
-              <h2 className="text-xl font-semibold">{category}</h2>
+        <Tabs defaultValue={defaultCategory} className="space-y-6">
+          <TabsList>
+            {categoriesEntries.map(([category]) => (
+              <TabsTrigger key={category} value={category}>
+                {category}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          {categoriesEntries.map(([category, employeesInCategory]) => (
+            <TabsContent key={category} value={category} className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {employeesByPosition[category].map((employee) => {
+                {employeesInCategory.map((employee) => {
                   const allocation = calculateAllocation(employee);
                   return (
                     <Link key={employee.id} to={`/employees/${employee.id}`}>
-                      <Card className="hover:shadow-md transition-shadow">
+                      <Card className="transition-shadow hover:shadow-md">
                         <CardContent className="p-6">
                           <div className="flex items-start gap-4">
                             <Avatar className="h-12 w-12">
@@ -160,14 +173,16 @@ export const EmployeesPage = () => {
                                   {employee.status}
                                 </Badge>
                               </div>
-                              <p className="text-sm text-muted-foreground">{employee.position}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {employee.position}
+                              </p>
                               {employee.department && (
                                 <p className="text-sm text-muted-foreground">
                                   {employee.department.name}
                                 </p>
                               )}
-                              <div className="flex items-center gap-2 mt-2">
-                                <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                              <div className="mt-2 flex items-center gap-2">
+                                <div className="flex-1 h-2 overflow-hidden rounded-full bg-muted">
                                   <div
                                     className="h-full bg-primary"
                                     style={{ width: `${Math.min(allocation, 100)}%` }}
@@ -185,9 +200,9 @@ export const EmployeesPage = () => {
                   );
                 })}
               </div>
-            </div>
+            </TabsContent>
           ))}
-        </div>
+        </Tabs>
       )}
     </div>
   );

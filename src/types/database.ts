@@ -207,5 +207,8 @@ export interface DashboardStats {
   completedProjectsThisMonth: number;
   projectsByStatus: Record<ProjectStatus, number>;
   employeesByDepartment: Record<string, number>;
+  annualBudget: number;
+  annualExpenses: number;
+  annualProfit: number;
 }
 

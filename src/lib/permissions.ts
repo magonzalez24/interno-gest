@@ -1,4 +1,4 @@
-import type { User, Employee, Office } from '../types/database';
+import type { User, Employee } from '../types/database';
 import { UserRole } from '../types/database';
 import { mockManagerOffices } from './mock-data';
 
