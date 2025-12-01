@@ -14,6 +14,7 @@ const EmployeesPage = lazy(() => import('@/pages/EmployeesPage').then(module => 
 const EmployeeDetailPage = lazy(() => import('@/pages/EmployeeDetailPage').then(module => ({ default: module.EmployeeDetailPage })));
 const EmployeeFormPage = lazy(() => import('@/pages/EmployeeFormPage').then(module => ({ default: module.EmployeeFormPage })));
 const DepartmentsPage = lazy(() => import('@/pages/DepartmentsPage').then(module => ({ default: module.DepartmentsPage })));
+const DepartmentDetailPage = lazy(() => import('@/pages/DepartmentDetailPage').then(module => ({ default: module.DepartmentDetailPage })));
 const TechnologiesPage = lazy(() => import('@/pages/TechnologiesPage').then(module => ({ default: module.TechnologiesPage })));
 const OfficesPage = lazy(() => import('@/pages/OfficesPage').then(module => ({ default: module.OfficesPage })));
 const UsersPage = lazy(() => import('@/pages/UsersPage').then(module => ({ default: module.UsersPage })));
@@ -138,6 +139,14 @@ export const router = createBrowserRouter([
         element: (
           <LazyWrapper>
             <DepartmentsPage />
+          </LazyWrapper>
+        ) 
+      },
+      { 
+        path: 'departments/:id', 
+        element: (
+          <LazyWrapper>
+            <DepartmentDetailPage />
           </LazyWrapper>
         ) 
       },

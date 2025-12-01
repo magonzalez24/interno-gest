@@ -9,7 +9,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { OfficeSwitcher } from './OfficeSwitcher';
 import { useNavigate } from 'react-router-dom';
@@ -52,14 +51,7 @@ export const Navbar = () => {
   };
 
   return (
-    <div className="flex h-16 items-center justify-between border-b bg-background px-6">
-      <div className="flex items-center gap-4">
-        <Input
-          type="search"
-          placeholder={t('navbar.searchPlaceholder')}
-          className="w-[300px]"
-        />
-      </div>
+    <div className="flex h-16 items-center justify-end border-b bg-background px-6">
       
       <div className="flex items-center gap-4">
         <Select
