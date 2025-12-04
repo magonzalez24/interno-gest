@@ -26,6 +26,7 @@ export const employeeSchema = z.object({
   officeId: z.string().min(1, 'La sede es requerida'),
   status: z.enum(['ACTIVE', 'INACTIVE', 'ON_LEAVE', 'TERMINATED']),
   hireDate: z.date(),
+  salary: z.number().positive().optional().nullable(),
 });
 
 export const departmentSchema = z.object({
@@ -38,5 +39,12 @@ export const technologySchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   category: z.enum(['FRONTEND', 'BACKEND', 'DATABASE', 'DEVOPS', 'MOBILE', 'DESIGN', 'TESTING', 'OTHER']),
   color: z.string().optional(),
+});
+
+export const officeSchema = z.object({
+  name: z.string().min(1, 'El nombre es requerido'),
+  country: z.string().min(1, 'El país es requerido'),
+  address: z.string().optional(),
+  timezone: z.string().min(1, 'La zona horaria es requerida'),
 });
 

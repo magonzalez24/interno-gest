@@ -10,6 +10,7 @@ import {
   BarChart3,
   UserCog,
   Clock,
+  Receipt,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -30,6 +31,7 @@ const navItems: NavItem[] = [
   { title: 'sidebar.dashboard', href: '/dashboard', icon: LayoutDashboard, roles: [UserRole.MANAGER, UserRole.DIRECTOR] },
   { title: 'sidebar.projects', href: '/projects', icon: FolderKanban },
   { title: 'sidebar.timeEntries', href: '/time-entries', icon: Clock },
+  { title: 'sidebar.billing', href: '/billing', icon: Receipt },
   { title: 'sidebar.employees', href: '/employees', icon: Users, roles: [UserRole.MANAGER, UserRole.DIRECTOR] },
   { title: 'sidebar.departments', href: '/departments', icon: Building2, roles: [UserRole.MANAGER, UserRole.DIRECTOR] },
   { title: 'sidebar.technologies', href: '/technologies', icon: Code },

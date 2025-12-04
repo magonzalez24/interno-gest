@@ -42,16 +42,30 @@ export const AddTeamMemberModal = ({ open, onOpenChange, project, onSuccess }: A
   useEffect(() => {
     const loadEmployees = async () => {
       try {
-        // Obtener todos los empleados de la misma oficina que el proyecto
-        const allEmployees = await mockApi.getEmployees({ officeId: project.officeId });
+        const allEmployees: Employee[] = [];
         
-        // Filtrar solo empleados activos que no estén ya asignados al proyecto
+        // Obtener empleados de la sede principal
+        const mainOfficeEmployees = await mockApi.getEmployees({ officeId: project.officeId });
+        allEmployees.push(...mainOfficeEmployees);
+        
+        // Obtener empleados de las sedes adicionales
+        if (project.additionalOffices) {
+          for (const po of project.additionalOffices) {
+            const additionalOfficeEmployees = await mockApi.getEmployees({ officeId: po.officeId });
+            allEmployees.push(...additionalOfficeEmployees);
+          }
+        }
+        
+        // Filtrar duplicados, solo activos y que no estén ya asignados al proyecto
         const assignedEmployeeIds = new Set(project.employees?.map(pe => pe.employeeId) || []);
-        const availableEmployees = allEmployees.filter(
-          emp => emp.status === EmployeeStatus.ACTIVE && !assignedEmployeeIds.has(emp.id)
+        const uniqueEmployees = allEmployees.filter(
+          (emp, index, self) => 
+            index === self.findIndex(e => e.id === emp.id) &&
+            emp.status === EmployeeStatus.ACTIVE && 
+            !assignedEmployeeIds.has(emp.id)
         );
         
-        setEmployees(availableEmployees);
+        setEmployees(uniqueEmployees);
       } catch (error) {
         console.error('Error loading employees:', error);
         toast({
@@ -150,7 +164,14 @@ export const AddTeamMemberModal = ({ open, onOpenChange, project, onSuccess }: A
                 <SelectContent>
                   {employees.map((employee) => (
                     <SelectItem key={employee.id} value={employee.id}>
-                      {employee.name} - {employee.position}
+                      <div className="flex flex-col">
+                        <span>{employee.name} - {employee.position}</span>
+                        {employee.office && (
+                          <span className="text-xs text-muted-foreground">
+                            {employee.office.name}
+                          </span>
+                        )}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>

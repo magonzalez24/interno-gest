@@ -12,8 +12,10 @@ import {
   mockProjectDepartments,
   mockManagerOffices,
   mockTimeEntries,
+  mockProjectExpenses,
   populateRelations,
   generateId,
+  mockCompany,
 } from './mock-data';
 import { ProjectStatus, UserRole } from '../types/database';
 import type {
@@ -28,7 +30,9 @@ import type {
   ProjectDepartment,
   ProjectTechnology,
   TimeEntry,
+  ProjectExpense,
 } from '../types/database';
+import { ExpenseCategory } from '../types/database';
 import type { MockApi } from '../types/api';
 
 // Simular delay de red
@@ -151,6 +155,35 @@ export const mockApi: MockApi = {
     }
     
     return [];
+  },
+
+  createOffice: async (data: Partial<Office>) => {
+    await randomDelay();
+    const newOffice: Office = {
+      id: `office-${Date.now()}`,
+      name: data.name || 'Nueva Sede',
+      country: data.country || '',
+      address: data.address,
+      timezone: data.timezone || 'UTC',
+      companyId: mockCompany.id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    mockOffices.push(newOffice);
+    return newOffice;
+  },
+
+  updateOffice: async (id: string, data: Partial<Office>) => {
+    await randomDelay();
+    const index = mockOffices.findIndex(o => o.id === id);
+    if (index === -1) throw new Error('Sede no encontrada');
+    
+    mockOffices[index] = {
+      ...mockOffices[index],
+      ...data,
+      updatedAt: new Date(),
+    };
+    return mockOffices[index];
   },
 
   // Departments
@@ -600,6 +633,64 @@ export const mockApi: MockApi = {
     const index = mockTimeEntries.findIndex(te => te.id === id);
     if (index === -1) throw new Error('Imputación no encontrada');
     mockTimeEntries.splice(index, 1);
+  },
+
+  // Project Expenses
+  getProjectExpenses: async (projectId: string) => {
+    await randomDelay();
+    populateRelations();
+    return mockProjectExpenses.filter(exp => exp.projectId === projectId);
+  },
+
+  getProjectExpenseById: async (id: string) => {
+    await randomDelay();
+    populateRelations();
+    const expense = mockProjectExpenses.find(exp => exp.id === id);
+    if (!expense) throw new Error('Gasto no encontrado');
+    return expense;
+  },
+
+  createProjectExpense: async (data: Partial<ProjectExpense>) => {
+    await randomDelay();
+    if (!data.projectId) throw new Error('projectId es requerido');
+    
+    const newExpense: ProjectExpense = {
+      id: generateId(),
+      projectId: data.projectId,
+      category: data.category || ExpenseCategory.OTHER,
+      description: data.description || '',
+      cost: data.cost || 0,
+      startDate: data.startDate || new Date(),
+      endDate: data.endDate,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    mockProjectExpenses.push(newExpense);
+    populateRelations();
+    return newExpense;
+  },
+
+  updateProjectExpense: async (id: string, data: Partial<ProjectExpense>) => {
+    await randomDelay();
+    const expense = mockProjectExpenses.find(exp => exp.id === id);
+    if (!expense) throw new Error('Gasto no encontrado');
+    
+    Object.assign(expense, {
+      ...data,
+      updatedAt: new Date(),
+    });
+    
+    populateRelations();
+    return expense;
+  },
+
+  deleteProjectExpense: async (id: string) => {
+    await randomDelay();
+    const index = mockProjectExpenses.findIndex(exp => exp.id === id);
+    if (index === -1) throw new Error('Gasto no encontrado');
+    mockProjectExpenses.splice(index, 1);
+    populateRelations();
   },
 };
 

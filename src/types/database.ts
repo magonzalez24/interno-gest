@@ -125,9 +125,11 @@ export interface Project {
   updatedAt: Date;
   // Relations (populated)
   office?: Office;
+  additionalOffices?: ProjectOffice[];
   departments?: ProjectDepartment[];
   employees?: ProjectEmployee[];
   technologies?: ProjectTechnology[];
+  expenses?: ProjectExpense[];
 }
 
 export interface Technology {
@@ -185,6 +187,16 @@ export interface ProjectDepartment {
   department?: Department;
 }
 
+export interface ProjectOffice {
+  id: string;
+  projectId: string;
+  officeId: string;
+  createdAt: Date;
+  // Relations
+  project?: Project;
+  office?: Office;
+}
+
 export interface TimeEntry {
   id: string;
   employeeId: string;
@@ -210,5 +222,28 @@ export interface DashboardStats {
   annualBudget: number;
   annualExpenses: number;
   annualProfit: number;
+}
+
+export enum ExpenseCategory {
+  SERVER = 'SERVER',
+  INFRASTRUCTURE = 'INFRASTRUCTURE',
+  LICENSE = 'LICENSE',
+  TOOL = 'TOOL',
+  SERVICE = 'SERVICE',
+  OTHER = 'OTHER'
+}
+
+export interface ProjectExpense {
+  id: string;
+  projectId: string;
+  category: ExpenseCategory;
+  description: string;
+  cost: number; // Costo mensual
+  startDate: Date;
+  endDate?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  // Relations
+  project?: Project;
 }
 

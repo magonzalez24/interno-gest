@@ -33,6 +33,7 @@
     "dashboard": "Dashboard",
     "projects": "Proyectos",
     "timeEntries": "Imputación",
+    "billing": "Facturación",
     "employees": "Empleados",
     "departments": "Departamentos",
     "technologies": "Tecnologías",
@@ -323,6 +324,68 @@
       "director": "Director",
       "manager": "Manager",
       "employee": "Empleado"
+    }
+  },
+  "billing": {
+    "title": "Facturación",
+    "subtitle": "Gestiona la facturación de proyectos activos y completados",
+    "searchPlaceholder": "Buscar proyectos...",
+    "noProjects": "No se encontraron proyectos facturables",
+    "clientFallback": "Cliente",
+    "budget": "Presupuesto",
+    "invoices": {
+      "title": "Facturas del Proyecto",
+      "new": "Nueva Factura",
+      "list": "Facturas",
+      "empty": "No hay facturas registradas para este proyecto",
+      "projectNotFound": "Proyecto no encontrado",
+      "issueDate": "Emisión",
+      "dueDate": "Vencimiento",
+      "status": {
+        "paid": "Pagada",
+        "sent": "Enviada",
+        "draft": "Borrador",
+        "overdue": "Vencida"
+      },
+      "summary": {
+        "total": "Total Facturado",
+        "paid": "Pagado",
+        "pending": "Pendiente"
+      },
+      "modal": {
+        "title": "Nueva Factura",
+        "description": "Añade una nueva factura al proyecto",
+        "invoiceNumber": "Número de Factura",
+        "invoiceNumberPlaceholder": "Ej: INV-2024-001",
+        "invoiceNumberHint": "Deja vacío para generar automáticamente",
+        "amount": "Monto",
+        "status": "Estado",
+        "issueDate": "Fecha de Emisión",
+        "dueDate": "Fecha de Vencimiento",
+        "description": "Descripción",
+        "descriptionPlaceholder": "Descripción de la factura (opcional)",
+        "pdf": "Archivo PDF",
+        "clickToUpload": "Haz clic para subir",
+        "orDragDrop": "o arrastra y suelta",
+        "pdfOnly": "Solo archivos PDF (máx. 10MB)",
+        "error": "Error",
+        "invalidFileType": "Solo se permiten archivos PDF",
+        "fileTooLarge": "El archivo no puede ser mayor a 10MB",
+        "requiredFields": "Por favor completa todos los campos requeridos",
+        "invalidAmount": "El monto debe ser un número mayor a 0",
+        "invalidDates": "La fecha de vencimiento debe ser posterior a la fecha de emisión",
+        "pdfRequired": "Debes subir un archivo PDF",
+        "success": "Éxito",
+        "created": "Factura creada correctamente",
+        "createError": "Error al crear la factura",
+        "saving": "Guardando...",
+        "create": "Crear Factura"
+      },
+      "viewer": {
+        "title": "Factura",
+        "download": "Descargar",
+        "noPdf": "No hay PDF disponible para esta factura"
+      }
     }
   }
 }

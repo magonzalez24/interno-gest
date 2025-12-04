@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { mockApi } from '@/lib/mock-api';
 import type { Employee } from '@/types/database';
-import { formatDate } from '@/lib/utils';
+import { formatDate, formatCurrency } from '@/lib/utils';
 import { ArrowLeft, Edit } from 'lucide-react';
 import { SkillLevel } from '@/types/database';
 
@@ -141,6 +141,12 @@ export const EmployeeDetailPage = () => {
                   <Badge className={getStatusColor(employee.status)}>
                     {employee.status}
                   </Badge>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Sueldo Anual</p>
+                  <p className="mt-1">
+                    {employee.salary ? formatCurrency(employee.salary) : 'No disponible'}
+                  </p>
                 </div>
               </div>
             </CardContent>

@@ -11,7 +11,8 @@ import type {
   ProjectTechnology,
   ProjectStatus,
   DashboardStats,
-  TimeEntry
+  TimeEntry,
+  ProjectExpense
 } from './database';
 
 export interface LoginCredentials {
@@ -29,6 +30,8 @@ export interface MockApi {
   getOffices: () => Promise<Office[]>;
   getOfficeById: (id: string) => Promise<Office>;
   getUserOffices: (userId: string) => Promise<Office[]>;
+  createOffice: (data: Partial<Office>) => Promise<Office>;
+  updateOffice: (id: string, data: Partial<Office>) => Promise<Office>;
   
   // Departments
   getDepartments: (officeId?: string) => Promise<Department[]>;
@@ -74,5 +77,12 @@ export interface MockApi {
   createTimeEntry: (data: Partial<TimeEntry>) => Promise<TimeEntry>;
   updateTimeEntry: (id: string, data: Partial<TimeEntry>) => Promise<TimeEntry>;
   deleteTimeEntry: (id: string) => Promise<void>;
+  
+  // Project Expenses
+  getProjectExpenses: (projectId: string) => Promise<ProjectExpense[]>;
+  getProjectExpenseById: (id: string) => Promise<ProjectExpense>;
+  createProjectExpense: (data: Partial<ProjectExpense>) => Promise<ProjectExpense>;
+  updateProjectExpense: (id: string, data: Partial<ProjectExpense>) => Promise<ProjectExpense>;
+  deleteProjectExpense: (id: string) => Promise<void>;
 }
 

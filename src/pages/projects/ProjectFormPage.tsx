@@ -38,6 +38,7 @@ export const ProjectFormPage = () => {
   const [selectedTechnologies, setSelectedTechnologies] = useState<string[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [availableEmployees, setAvailableEmployees] = useState<Employee[]>([]);
+  const [additionalOffices, setAdditionalOffices] = useState<string[]>([]);
   const [newMemberForm, setNewMemberForm] = useState<TeamMember>({
     employeeId: '',
     role: '',
@@ -69,21 +70,40 @@ export const ProjectFormPage = () => {
 
   const selectedOfficeId = watch('officeId');
   
-  // Cargar empleados cuando cambia la oficina
+  // Cargar empleados de la sede principal y sedes adicionales
   useEffect(() => {
-    if (selectedOfficeId) {
-      const loadEmployees = async () => {
-        try {
-          const employees = await mockApi.getEmployees({ officeId: selectedOfficeId });
-          const activeEmployees = employees.filter(e => e.status === EmployeeStatus.ACTIVE);
-          setAvailableEmployees(activeEmployees);
-        } catch (error) {
-          console.error('Error loading employees:', error);
+    const loadEmployees = async () => {
+      try {
+        const allEmployees: Employee[] = [];
+        
+        // Cargar empleados de la sede principal
+        if (selectedOfficeId) {
+          const mainOfficeEmployees = await mockApi.getEmployees({ officeId: selectedOfficeId });
+          allEmployees.push(...mainOfficeEmployees);
         }
-      };
+        
+        // Cargar empleados de las sedes adicionales
+        for (const officeId of additionalOffices) {
+          const additionalOfficeEmployees = await mockApi.getEmployees({ officeId });
+          allEmployees.push(...additionalOfficeEmployees);
+        }
+        
+        // Filtrar duplicados y solo activos
+        const uniqueActiveEmployees = allEmployees
+          .filter((e, index, self) => 
+            index === self.findIndex(emp => emp.id === e.id) && e.status === EmployeeStatus.ACTIVE
+          );
+        
+        setAvailableEmployees(uniqueActiveEmployees);
+      } catch (error) {
+        console.error('Error loading employees:', error);
+      }
+    };
+    
+    if (selectedOfficeId || additionalOffices.length > 0) {
       loadEmployees();
     }
-  }, [selectedOfficeId]);
+  }, [selectedOfficeId, additionalOffices]);
 
   useEffect(() => {
     if (isEditing && id) {
@@ -113,6 +133,11 @@ export const ProjectFormPage = () => {
               role: pe.role,
               allocation: pe.allocation,
             })));
+          }
+          
+          // Cargar sedes adicionales del proyecto
+          if (project.additionalOffices) {
+            setAdditionalOffices(project.additionalOffices.map(po => po.officeId));
           }
         } catch (error) {
           console.error('Error loading project:', error);
@@ -220,6 +245,11 @@ export const ProjectFormPage = () => {
         }
       }
 
+      // Añadir sedes adicionales al proyecto
+      // En producción, esto se haría con una API específica
+      // Por ahora, simulamos guardando en el proyecto
+      // await mockApi.addOfficesToProject(projectId, additionalOffices);
+
       navigate('/projects');
     } catch (error) {
       toast({
@@ -237,7 +267,7 @@ export const ProjectFormPage = () => {
     : offices.filter(o => o.id === watch('officeId'));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate('/projects')}>
           <ArrowLeft className="h-4 w-4" />
@@ -383,6 +413,78 @@ export const ProjectFormPage = () => {
           </CardContent>
         </Card>
 
+        {/* Sedes Adicionales */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Sedes Adicionales</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Selecciona sedes adicionales para permitir que trabajadores de otras sedes participen en este proyecto.
+            </p>
+            
+            {selectedOfficeId && (
+              <div className="space-y-2">
+                <Label>Sedes disponibles</Label>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {offices
+                    .filter(office => office.id !== selectedOfficeId)
+                    .map((office) => (
+                      <div key={office.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`office-${office.id}`}
+                          checked={additionalOffices.includes(office.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setAdditionalOffices([...additionalOffices, office.id]);
+                            } else {
+                              setAdditionalOffices(additionalOffices.filter(id => id !== office.id));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={`office-${office.id}`} className="cursor-pointer flex-1">
+                          {office.name} ({office.country})
+                        </Label>
+                      </div>
+                    ))}
+                </div>
+                {offices.filter(office => office.id !== selectedOfficeId).length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    No hay otras sedes disponibles
+                  </p>
+                )}
+              </div>
+            )}
+            
+            {additionalOffices.length > 0 && (
+              <div className="mt-4 p-3 bg-muted rounded-lg">
+                <p className="text-sm font-medium mb-2">Sedes adicionales seleccionadas:</p>
+                <div className="flex flex-wrap gap-2">
+                  {additionalOffices.map((officeId) => {
+                    const office = offices.find(o => o.id === officeId);
+                    return office ? (
+                      <div key={officeId} className="flex items-center gap-2 px-2 py-1 bg-background rounded border">
+                        <span className="text-sm">{office.name}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-4 w-4"
+                          onClick={() => {
+                            setAdditionalOffices(additionalOffices.filter(id => id !== officeId));
+                          }}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Tecnologías */}
         <Card>
           <CardHeader>
@@ -433,6 +535,9 @@ export const ProjectFormPage = () => {
                         <p className="font-medium">{employee?.name || 'Empleado'}</p>
                         <p className="text-sm text-muted-foreground">
                           {member.role} - {member.allocation}%
+                          {employee?.office && (
+                            <span className="ml-2 text-xs">• {employee.office.name}</span>
+                          )}
                         </p>
                       </div>
                       <Button
@@ -466,7 +571,14 @@ export const ProjectFormPage = () => {
                         .filter(emp => !teamMembers.some(tm => tm.employeeId === emp.id))
                         .map((employee) => (
                           <SelectItem key={employee.id} value={employee.id}>
-                            {employee.name}
+                            <div className="flex flex-col">
+                              <span>{employee.name}</span>
+                              {employee.office && (
+                                <span className="text-xs text-muted-foreground">
+                                  {employee.office.name}
+                                </span>
+                              )}
+                            </div>
                           </SelectItem>
                         ))}
                     </SelectContent>

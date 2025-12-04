@@ -12,6 +12,7 @@ import type {
   ProjectTechnology,
   ProjectDepartment,
   TimeEntry,
+  ProjectExpense,
 } from '../types/database';
 import {
   UserRole,
@@ -20,6 +21,7 @@ import {
   Priority,
   TechCategory,
   SkillLevel,
+  ExpenseCategory,
 } from '../types/database';
 
 // Helper para generar IDs
@@ -595,6 +597,90 @@ mockEmployees.forEach((employee) => {
   }
 });
 
+// 14. ProjectExpenses (gastos de proyectos)
+export const mockProjectExpenses: ProjectExpense[] = [];
+
+// Tipos de gastos por categoría
+const expenseTemplates: Record<ExpenseCategory, Array<{ description: string; costRange: [number, number] }>> = {
+  [ExpenseCategory.SERVER]: [
+    { description: 'Servidor AWS EC2 t3.large', costRange: [150, 300] },
+    { description: 'Servidor Azure VM Standard_B2s', costRange: [120, 250] },
+    { description: 'Servidor GCP e2-standard-2', costRange: [100, 220] },
+    { description: 'Servidor dedicado', costRange: [200, 500] },
+    { description: 'Load Balancer AWS', costRange: [20, 50] },
+  ],
+  [ExpenseCategory.INFRASTRUCTURE]: [
+    { description: 'CDN CloudFront', costRange: [50, 150] },
+    { description: 'Storage S3', costRange: [30, 100] },
+    { description: 'Database RDS', costRange: [200, 600] },
+    { description: 'Redis Cache', costRange: [40, 120] },
+    { description: 'VPN y Networking', costRange: [80, 200] },
+  ],
+  [ExpenseCategory.LICENSE]: [
+    { description: 'Licencia JetBrains', costRange: [15, 25] },
+    { description: 'Licencia Adobe Creative Cloud', costRange: [50, 80] },
+    { description: 'Licencia Microsoft Office 365', costRange: [10, 20] },
+    { description: 'Licencia Jira/Confluence', costRange: [100, 300] },
+    { description: 'Licencia Slack Enterprise', costRange: [200, 500] },
+  ],
+  [ExpenseCategory.TOOL]: [
+    { description: 'Sentry Error Tracking', costRange: [50, 200] },
+    { description: 'Datadog Monitoring', costRange: [100, 300] },
+    { description: 'New Relic APM', costRange: [150, 400] },
+    { description: 'GitHub Enterprise', costRange: [200, 500] },
+  ],
+  [ExpenseCategory.SERVICE]: [
+    { description: 'Servicio de email (SendGrid)', costRange: [30, 100] },
+    { description: 'Servicio de SMS (Twilio)', costRange: [50, 150] },
+    { description: 'Servicio de pagos (Stripe)', costRange: [100, 300] },
+    { description: 'Servicio de almacenamiento (Cloudinary)', costRange: [40, 120] },
+  ],
+  [ExpenseCategory.OTHER]: [
+    { description: 'Dominio y SSL', costRange: [10, 50] },
+    { description: 'Backup y almacenamiento', costRange: [30, 100] },
+    { description: 'Servicios de seguridad', costRange: [100, 300] },
+  ],
+};
+
+// Generar gastos para cada proyecto
+mockProjects.forEach((project) => {
+  // Cada proyecto tiene entre 2-6 gastos
+  const numExpenses = Math.floor(Math.random() * 5) + 2;
+  
+  // Seleccionar categorías aleatorias
+  const categories = Object.values(ExpenseCategory);
+  
+  for (let i = 0; i < numExpenses; i++) {
+    const category = categories[Math.floor(Math.random() * categories.length)];
+    const templates = expenseTemplates[category];
+    const template = templates[Math.floor(Math.random() * templates.length)];
+    
+    const [minCost, maxCost] = template.costRange;
+    const cost = Math.floor(Math.random() * (maxCost - minCost + 1)) + minCost;
+    
+    // Fecha de inicio del gasto (puede ser antes o después del inicio del proyecto)
+    const startDate = new Date(project.startDate);
+    startDate.setDate(startDate.getDate() + Math.floor(Math.random() * 60) - 30); // ±30 días
+    
+    // Fecha de fin (opcional, solo si el proyecto tiene endDate)
+    const endDate = project.endDate 
+      ? new Date(project.endDate)
+      : undefined;
+    
+    mockProjectExpenses.push({
+      id: generateId(),
+      projectId: project.id,
+      category,
+      description: template.description,
+      cost,
+      startDate,
+      endDate,
+      createdAt: startDate,
+      updatedAt: daysAgo(Math.floor(Math.random() * 30)),
+    });
+  }
+});
+
 // Helper para poblar relaciones
 export const populateRelations = () => {
   // Populate employees
@@ -612,6 +698,7 @@ export const populateRelations = () => {
     proj.departments = mockProjectDepartments.filter(pd => pd.projectId === proj.id);
     proj.employees = mockProjectEmployees.filter(pe => pe.projectId === proj.id);
     proj.technologies = mockProjectTechnologies.filter(pt => pt.projectId === proj.id);
+    proj.expenses = mockProjectExpenses.filter(exp => exp.projectId === proj.id);
   });
   
   // Populate project employees
@@ -642,6 +729,11 @@ export const populateRelations = () => {
   mockTimeEntries.forEach(te => {
     te.employee = mockEmployees.find(e => e.id === te.employeeId);
     te.project = mockProjects.find(p => p.id === te.projectId);
+  });
+  
+  // Populate project expenses
+  mockProjectExpenses.forEach(exp => {
+    exp.project = mockProjects.find(p => p.id === exp.projectId);
   });
 };
 

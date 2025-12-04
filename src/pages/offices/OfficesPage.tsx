@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { mockApi } from '@/lib/mock-api';
 import { useState, useEffect } from 'react';
 import type { Office } from '@/types/database';
-import { Building2 } from 'lucide-react';
+import { Building2, Plus } from 'lucide-react';
 
 export const OfficesPage = () => {
   const [offices, setOffices] = useState<Office[]>([]);
@@ -29,11 +30,19 @@ export const OfficesPage = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Sedes</h1>
-        <p className="text-muted-foreground mt-2">
-          Gestiona las sedes de la empresa
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Sedes</h1>
+          <p className="text-muted-foreground mt-2">
+            Gestiona las sedes de la empresa
+          </p>
+        </div>
+        <Link to="/offices/new">
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Crear sede
+          </Button>
+        </Link>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

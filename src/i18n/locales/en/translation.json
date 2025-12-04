@@ -33,6 +33,7 @@
     "dashboard": "Dashboard",
     "projects": "Projects",
     "timeEntries": "Time entries",
+    "billing": "Billing",
     "employees": "Employees",
     "departments": "Departments",
     "technologies": "Technologies",
@@ -323,6 +324,68 @@
       "director": "Director",
       "manager": "Manager",
       "employee": "Employee"
+    }
+  },
+  "billing": {
+    "title": "Billing",
+    "subtitle": "Manage billing for active and completed projects",
+    "searchPlaceholder": "Search projects...",
+    "noProjects": "No billable projects found",
+    "clientFallback": "Client",
+    "budget": "Budget",
+    "invoices": {
+      "title": "Project Invoices",
+      "new": "New Invoice",
+      "list": "Invoices",
+      "empty": "No invoices registered for this project",
+      "projectNotFound": "Project not found",
+      "issueDate": "Issue Date",
+      "dueDate": "Due Date",
+      "status": {
+        "paid": "Paid",
+        "sent": "Sent",
+        "draft": "Draft",
+        "overdue": "Overdue"
+      },
+      "summary": {
+        "total": "Total Invoiced",
+        "paid": "Paid",
+        "pending": "Pending"
+      },
+      "modal": {
+        "title": "New Invoice",
+        "description": "Add a new invoice to the project",
+        "invoiceNumber": "Invoice Number",
+        "invoiceNumberPlaceholder": "E.g: INV-2024-001",
+        "invoiceNumberHint": "Leave empty to generate automatically",
+        "amount": "Amount",
+        "status": "Status",
+        "issueDate": "Issue Date",
+        "dueDate": "Due Date",
+        "description": "Description",
+        "descriptionPlaceholder": "Invoice description (optional)",
+        "pdf": "PDF File",
+        "clickToUpload": "Click to upload",
+        "orDragDrop": "or drag and drop",
+        "pdfOnly": "PDF files only (max. 10MB)",
+        "error": "Error",
+        "invalidFileType": "Only PDF files are allowed",
+        "fileTooLarge": "File cannot be larger than 10MB",
+        "requiredFields": "Please complete all required fields",
+        "invalidAmount": "Amount must be a number greater than 0",
+        "invalidDates": "Due date must be after issue date",
+        "pdfRequired": "You must upload a PDF file",
+        "success": "Success",
+        "created": "Invoice created successfully",
+        "createError": "Error creating invoice",
+        "saving": "Saving...",
+        "create": "Create Invoice"
+      },
+      "viewer": {
+        "title": "Invoice",
+        "download": "Download",
+        "noPdf": "No PDF available for this invoice"
+      }
     }
   }
 }
