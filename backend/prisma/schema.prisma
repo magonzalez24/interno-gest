@@ -1,0 +1,309 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  EMPLOYEE
+  MANAGER
+  DIRECTOR
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+  ON_LEAVE
+  TERMINATED
+}
+
+enum ProjectStatus {
+  PLANNING
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TechCategory {
+  FRONTEND
+  BACKEND
+  DATABASE
+  DEVOPS
+  MOBILE
+  DESIGN
+  TESTING
+  OTHER
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+}
+
+enum ExpenseCategory {
+  SERVER
+  INFRASTRUCTURE
+  LICENSE
+  TOOL
+  SERVICE
+  OTHER
+}
+
+model Company {
+  id        String   @id // VARCHAR(50) - IDs manuales
+  name      String
+  logo      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  offices Office[]
+}
+
+model Office {
+  id        String   @id // VARCHAR(50) - IDs manuales
+  name      String
+  country   String
+  address   String?
+  timezone  String
+  companyId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  departments Department[]
+  employees   Employee[]
+  projects    Project[]
+  managerOffices ManagerOffice[]
+  projectOffices ProjectOffice[]
+}
+
+model Department {
+  id          String   @id // VARCHAR(50) - IDs manuales
+  name        String
+  description String?
+  officeId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  office         Office            @relation(fields: [officeId], references: [id], onDelete: Cascade)
+  employees      Employee[]
+  projectDepartments ProjectDepartment[]
+}
+
+model User {
+  id        String   @id // VARCHAR(50) - IDs manuales
+  email     String   @unique
+  password  String   // Hash de la contraseña
+  role      UserRole
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employee      Employee?
+  managerOffices ManagerOffice[]
+}
+
+model Employee {
+  id          String         @id // VARCHAR(50) - IDs manuales
+  userId      String         @unique
+  name        String
+  position    String
+  departmentId String?
+  phone       String?
+  avatarUrl   String?
+  officeId    String
+  status      EmployeeStatus @default(ACTIVE)
+  hireDate    DateTime
+  salary      Decimal?       @db.Decimal(12, 2)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  office          Office              @relation(fields: [officeId], references: [id], onDelete: Cascade)
+  department      Department?         @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  projectEmployees ProjectEmployee[]
+  employeeTechnologies EmployeeTechnology[]
+  timeEntries     TimeEntry[]
+}
+
+model ManagerOffice {
+  id        String   @id // VARCHAR(50) - IDs manuales
+  userId    String
+  officeId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  office Office @relation(fields: [officeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, officeId])
+}
+
+model Technology {
+  id        String   @id // VARCHAR(50) - IDs manuales
+  name      String   @unique
+  category  TechCategory
+  iconUrl   String?
+  color     String?
+  createdAt DateTime @default(now())
+
+  employeeTechnologies EmployeeTechnology[]
+  projectTechnologies  ProjectTechnology[]
+}
+
+model Project {
+  id          String        @id // VARCHAR(50) - IDs manuales
+  name        String
+  description String?
+  status      ProjectStatus @default(PLANNING)
+  priority    Priority      @default(MEDIUM)
+  startDate   DateTime
+  endDate     DateTime?
+  clientName  String?
+  budget      Decimal?     @db.Decimal(15, 2)
+  isInternal  Boolean       @default(false)
+  officeId    String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  office            Office              @relation(fields: [officeId], references: [id], onDelete: Cascade)
+  projectEmployees  ProjectEmployee[]
+  projectTechnologies ProjectTechnology[]
+  projectDepartments ProjectDepartment[]
+  projectOffices    ProjectOffice[]
+  timeEntries       TimeEntry[]
+  expenses          ProjectExpense[]
+  invoices          Invoice[]
+}
+
+model ProjectEmployee {
+  id        String   @id // VARCHAR(50) - IDs manuales
+  projectId String
+  employeeId String
+  role      String
+  startDate DateTime
+  endDate   DateTime?
+  allocation Int      // 0-100
+  hours     Int?
+  createdAt DateTime @default(now())
+
+  project  Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, employeeId, startDate])
+}
+
+model EmployeeTechnology {
+  id           String     @id // VARCHAR(50) - IDs manuales
+  employeeId   String
+  technologyId String
+  level        SkillLevel
+  yearsOfExp   Int
+  createdAt    DateTime   @default(now())
+
+  employee   Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  technology Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, technologyId])
+}
+
+model ProjectTechnology {
+  id           String   @id // VARCHAR(50) - IDs manuales
+  projectId    String
+  technologyId String
+
+  project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  technology Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, technologyId])
+}
+
+model ProjectDepartment {
+  id           String   @id // VARCHAR(50) - IDs manuales
+  projectId    String
+  departmentId String
+  createdAt    DateTime @default(now())
+
+  project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, departmentId])
+}
+
+model ProjectOffice {
+  id        String   @id // VARCHAR(50) - IDs manuales
+  projectId String
+  officeId  String
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  office  Office  @relation(fields: [officeId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, officeId])
+}
+
+model TimeEntry {
+  id          String   @id // VARCHAR(50) - IDs manuales
+  employeeId  String
+  projectId   String
+  hours       Decimal  @db.Decimal(5, 2)
+  description String?
+  date        DateTime @db.Date
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  project  Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model ProjectExpense {
+  id          String          @id // VARCHAR(50) - IDs manuales
+  projectId   String
+  category    ExpenseCategory
+  description String
+  cost        Decimal         @db.Decimal(12, 2)
+  startDate   DateTime        @db.Date
+  endDate     DateTime?       @db.Date
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Invoice {
+  id            String        @id // VARCHAR(50) - IDs manuales
+  invoiceNumber String        @unique
+  projectId     String
+  amount        Decimal       @db.Decimal(15, 2)
+  issueDate     DateTime      @db.Date
+  dueDate       DateTime      @db.Date
+  status        InvoiceStatus @default(DRAFT)
+  description   String?
+  pdfUrl        String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
