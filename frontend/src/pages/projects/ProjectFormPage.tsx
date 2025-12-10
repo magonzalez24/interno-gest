@@ -193,62 +193,58 @@ export const ProjectFormPage = () => {
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
-      let projectId: string;
-      
       if (isEditing && id) {
         await api.updateProject(id, {
           ...data,
           isInternal: data.isInternal || false,
         });
-        projectId = id;
         toast({
           title: 'Proyecto actualizado',
           description: 'El proyecto se ha actualizado correctamente',
         });
+        
+        // Para edición, mantener las llamadas separadas por ahora
+        // Añadir tecnologías al proyecto
+        for (const techId of selectedTechnologies) {
+          try {
+            await api.addTechnologyToProject({
+              projectId: id,
+              technologyId: techId,
+            });
+          } catch (error) {
+            console.error('Error adding technology:', error);
+          }
+        }
+
+        // Añadir empleados al proyecto
+        for (const member of teamMembers) {
+          try {
+            await api.assignEmployeeToProject({
+              projectId: id,
+              employeeId: member.employeeId,
+              role: member.role,
+              allocation: member.allocation,
+              startDate: data.startDate,
+              endDate: data.endDate,
+            });
+          } catch (error) {
+            console.error('Error adding employee:', error);
+          }
+        }
       } else {
-        const newProject = await api.createProject({
+        // Para creación, enviar todo en una sola petición
+        await api.createProject({
           ...data,
           isInternal: data.isInternal || false,
+          technologies: selectedTechnologies,
+          team: teamMembers,
+          additionalOffices: additionalOffices,
         });
-        projectId = newProject.id;
         toast({
           title: 'Proyecto creado',
           description: 'El proyecto se ha creado correctamente',
         });
       }
-
-      // Añadir tecnologías al proyecto
-      for (const techId of selectedTechnologies) {
-        try {
-          await api.addTechnologyToProject({
-            projectId,
-            technologyId: techId,
-          });
-        } catch (error) {
-          console.error('Error adding technology:', error);
-        }
-      }
-
-      // Añadir empleados al proyecto
-      for (const member of teamMembers) {
-        try {
-          await api.assignEmployeeToProject({
-            projectId,
-            employeeId: member.employeeId,
-            role: member.role,
-            allocation: member.allocation,
-            startDate: data.startDate,
-            endDate: data.endDate,
-          });
-        } catch (error) {
-          console.error('Error adding employee:', error);
-        }
-      }
-
-      // Añadir sedes adicionales al proyecto
-      // En producción, esto se haría con una API específica
-      // Por ahora, simulamos guardando en el proyecto
-      // await api.addOfficesToProject(projectId, additionalOffices);
 
       navigate('/projects');
     } catch (error) {

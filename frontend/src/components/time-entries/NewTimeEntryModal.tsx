@@ -59,10 +59,12 @@ export const NewTimeEntryModal = ({ open, onOpenChange, onSuccess }: NewTimeEntr
         if (!employeeId) return;
 
         const employeeProjects = allProjects.filter(project => {
-          return project.employees?.some(pe => pe.employeeId === employeeId);
+          // El backend devuelve projectEmployees, pero el tipo puede tener employees
+          const projectEmployees = project.projectEmployees || project.employees;
+          return projectEmployees?.some(pe => pe.employeeId === employeeId);
         });
 
-        setProjects(employeeProjects);
+        setProjects(allProjects);
       } catch (error) {
         console.error('Error loading projects:', error);
       }

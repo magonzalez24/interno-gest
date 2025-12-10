@@ -127,7 +127,8 @@ export interface Project {
   office?: Office;
   additionalOffices?: ProjectOffice[];
   departments?: ProjectDepartment[];
-  employees?: ProjectEmployee[];
+  employees?: ProjectEmployee[]; // Alias para projectEmployees (transformado)
+  projectEmployees?: ProjectEmployee[]; // Nombre real del campo del backend
   technologies?: ProjectTechnology[];
   expenses?: ProjectExpense[];
 }

@@ -109,16 +109,29 @@ export const PasteTimeEntriesModal = ({
         });
       });
 
+      // Helper para normalizar fechas a string YYYY-MM-DD
+      const normalizeDate = (date: Date | string): string => {
+        if (typeof date === 'string') {
+          // Si ya es string, extraer solo la parte de la fecha (YYYY-MM-DD)
+          return date.split('T')[0];
+        }
+        // Si es Date, convertir a YYYY-MM-DD
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
       // Verificar duplicados antes de crear
       const existingEntries = await api.getTimeEntries(employeeId);
       const existingKeys = new Set(
         existingEntries.map(e => 
-          `${e.projectId}-${e.date.toISOString().split('T')[0]}`
+          `${e.projectId}-${normalizeDate(e.date as Date | string)}`
         )
       );
 
       const uniqueEntries = entriesToCreate.filter(entry => {
-        const key = `${entry.projectId}-${entry.date.toISOString().split('T')[0]}`;
+        const key = `${entry.projectId}-${normalizeDate(entry.date)}`;
         return !existingKeys.has(key);
       });
 
@@ -146,6 +159,7 @@ export const PasteTimeEntriesModal = ({
       onOpenChange(false);
       onSuccess();
     } catch (error) {
+      console.error('Error al pegar las imputaciones:', error);
       toast({
         title: 'Error',
         description: error instanceof Error ? error.message : 'Error al pegar las imputaciones',

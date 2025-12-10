@@ -92,13 +92,51 @@ export const createEmployee = async (req: AuthRequest, res: Response) => {
 export const updateEmployee = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
+    const { name, position, departmentId, phone, officeId, status, hireDate, salary } = req.body;
+
+    // Preparar los datos para actualizar
+    const updateData: any = {};
+
+    if (name !== undefined) updateData.name = name;
+    if (position !== undefined) updateData.position = position;
+    if (departmentId !== undefined) {
+      // Manejar null o string vacío como null
+      updateData.departmentId = departmentId === null || departmentId === '' ? null : departmentId;
+    }
+    if (phone !== undefined) updateData.phone = phone || null;
+    if (officeId !== undefined) updateData.officeId = officeId;
+    if (status !== undefined) updateData.status = status;
+    
+    // Convertir hireDate a Date si viene como string
+    if (hireDate !== undefined) {
+      updateData.hireDate = hireDate instanceof Date 
+        ? hireDate 
+        : new Date(hireDate);
+    }
+    
+    // Convertir salary a Decimal si viene como número
+    if (salary !== undefined) {
+      updateData.salary = salary === null || salary === '' ? null : salary;
+    }
+
     const employee = await prisma.employee.update({
       where: { id },
-      data: req.body,
+      data: updateData,
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+          },
+        },
         office: true,
         department: true,
+        employeeTechnologies: {
+          include: {
+            technology: true,
+          },
+        },
       },
     });
 
@@ -106,6 +144,12 @@ export const updateEmployee = async (req: AuthRequest, res: Response) => {
   } catch (error: any) {
     if (error.code === 'P2025') {
       return res.status(404).json({ error: 'Empleado no encontrado' });
+    }
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: 'Ya existe un empleado con estos datos' });
+    }
+    if (error.code === 'P2003') {
+      return res.status(400).json({ error: 'Referencia inválida (officeId o departmentId no existe)' });
     }
     res.status(500).json({ error: error.message });
   }

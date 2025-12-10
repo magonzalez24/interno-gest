@@ -83,8 +83,13 @@ export const createTimeEntry = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'Faltan campos requeridos' });
     }
 
+    // Generar ID único para el timeEntry
+    const count = await prisma.timeEntry.count();
+    const id = `te-${count + 1}`;
+
     const timeEntry = await prisma.timeEntry.create({
       data: {
+        id,
         employeeId,
         projectId,
         hours: parseFloat(hours),

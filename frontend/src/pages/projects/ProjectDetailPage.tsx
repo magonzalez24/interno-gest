@@ -34,8 +34,16 @@ export const ProjectDetailPage = () => {
     if (!id) return;
     try {
       setLoading(true);
-      const data = await api.getProjectById(id);
-      setProject(data);
+      const data = await api.getProjectById(id) as any;
+      // Transformar los datos del backend para que coincidan con lo que espera el frontend
+      const transformedProject = {
+        ...data,
+        employees: data.projectEmployees || [],
+        technologies: data.projectTechnologies || [],
+        departments: data.projectDepartments || [],
+        additionalOffices: data.projectOffices || [],
+      };
+      setProject(transformedProject as Project);
     } catch (error) {
       console.error('Error loading project:', error);
     } finally {
@@ -80,10 +88,13 @@ export const ProjectDetailPage = () => {
     if (!project?.expenses) return 0;
     
     const now = new Date();
+    const projectStartDate = project.startDate instanceof Date ? project.startDate : new Date(project.startDate);
+    
     return project.expenses.reduce((total, exp) => {
       // Calcular meses desde el inicio hasta ahora (o hasta endDate si existe)
-      const endDate = exp.endDate || now;
-      const startDate = exp.startDate > project.startDate ? exp.startDate : project.startDate;
+      const endDate = exp.endDate ? (exp.endDate instanceof Date ? exp.endDate : new Date(exp.endDate)) : now;
+      const expStartDate = exp.startDate instanceof Date ? exp.startDate : new Date(exp.startDate);
+      const startDate = expStartDate > projectStartDate ? expStartDate : projectStartDate;
       const months = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30)));
       return total + (exp.cost * months);
     }, 0);
@@ -450,10 +461,13 @@ export const ProjectDetailPage = () => {
                       const categoryExpenses = project.expenses?.filter(exp => exp.category === category) || [];
                       if (categoryExpenses.length === 0) return null;
                       
+                      const projectStartDate = project.startDate instanceof Date ? project.startDate : new Date(project.startDate);
+                      
                       const categoryTotal = categoryExpenses.reduce((sum, exp) => {
                         const now = new Date();
-                        const endDate = exp.endDate || now;
-                        const startDate = exp.startDate > project.startDate ? exp.startDate : project.startDate;
+                        const endDate = exp.endDate ? (exp.endDate instanceof Date ? exp.endDate : new Date(exp.endDate)) : now;
+                        const expStartDate = exp.startDate instanceof Date ? exp.startDate : new Date(exp.startDate);
+                        const startDate = expStartDate > projectStartDate ? expStartDate : projectStartDate;
                         const months = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30)));
                         return sum + (exp.cost * months);
                       }, 0);
@@ -469,8 +483,10 @@ export const ProjectDetailPage = () => {
                           <div className="space-y-2">
                             {categoryExpenses.map((exp) => {
                               const now = new Date();
-                              const endDate = exp.endDate || now;
-                              const startDate = exp.startDate > project.startDate ? exp.startDate : project.startDate;
+                              const projectStartDate = project.startDate instanceof Date ? project.startDate : new Date(project.startDate);
+                              const endDate = exp.endDate ? (exp.endDate instanceof Date ? exp.endDate : new Date(exp.endDate)) : now;
+                              const expStartDate = exp.startDate instanceof Date ? exp.startDate : new Date(exp.startDate);
+                              const startDate = expStartDate > projectStartDate ? expStartDate : projectStartDate;
                               const months = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30)));
                               const totalCost = exp.cost * months;
                               
