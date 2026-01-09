@@ -1,0 +1,1 @@
+export const ATLASSIAN_LINK = "https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=TU_CLIENT_ID&scope=read%3Ajira-work%20manage%3Ajira-project-config%20read%3Ajira-user%20offline_access&redirect_uri=https%3A%2F%2Ftuapp.com%2Fapi%2Fauth%2Fjira%2Fcallback&state=VALOR_ALEATORIO_UNICO&response_type=code&prompt=consent";

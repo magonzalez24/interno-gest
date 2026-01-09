@@ -13,11 +13,16 @@ import { useEmployees } from '@/hooks/useEmployees';
 import { useProjects } from '@/hooks/useProjects';
 import { formatCurrency } from '@/lib/utils';
 
+type DepartmentWithOffice = Department & {
+  offices?: Office[];
+  country?: string;
+};
+
 export const OfficeDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [office, setOffice] = useState<Office | null>(null);
-  const [departments, setDepartments] = useState<Department[]>([]);
+  const [departments, setDepartments] = useState<DepartmentWithOffice[]>([]);
   const [loadingOffice, setLoadingOffice] = useState(true);
   const [loadingDepartments, setLoadingDepartments] = useState(true);
 
@@ -50,7 +55,9 @@ export const OfficeDetailPage = () => {
       try {
         setLoadingDepartments(true);
         const data = await api.getDepartments(id);
-        setDepartments(data);
+        // Convertir el objeto agrupado por país en un array plano
+        const departmentsArray = Object.values(data).flat();
+        setDepartments(departmentsArray);
       } catch (error) {
         console.error('Error loading departments:', error);
       } finally {

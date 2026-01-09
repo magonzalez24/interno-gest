@@ -1,0 +1,2523 @@
+openapi: 3.0.3
+info:
+  title: API Backend - Sistema de Gestión Interna
+  description: API REST para el sistema de gestión de proyectos, empleados, oficinas y recursos internos
+  version: 1.0.0
+  contact:
+    name: Soporte API
+    email: soporte@excelia.com
+
+servers:
+  - url: http://localhost:3001/api
+    description: Servidor de desarrollo local
+  - url: https://api.excelia.com/api
+    description: Servidor de producción
+
+tags:
+  - name: Auth
+    description: Autenticación y autorización
+  - name: Users
+    description: Gestión de usuarios
+  - name: Offices
+    description: Gestión de oficinas/sedes
+  - name: Departments
+    description: Gestión de departamentos
+  - name: Employees
+    description: Gestión de empleados
+  - name: Projects
+    description: Gestión de proyectos
+  - name: Technologies
+    description: Gestión de tecnologías
+  - name: Time Entries
+    description: Registro de horas imputadas
+  - name: Expenses
+    description: Gestión de gastos de proyectos
+  - name: Invoices
+    description: Gestión de facturas
+  - name: Dashboard
+    description: Estadísticas y métricas del dashboard
+
+security:
+  - bearerAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      description: Verifica el estado del servidor
+      tags: []
+      security: []
+      responses:
+        '200':
+          description: Servidor funcionando correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  # ============================================
+  # AUTH ENDPOINTS
+  # ============================================
+  /auth/login:
+    post:
+      summary: Iniciar sesión
+      description: Autentica un usuario y devuelve un token JWT
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: usuario@excelia.com
+                password:
+                  type: string
+                  format: password
+                  example: password123
+      responses:
+        '200':
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserWithToken'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/logout:
+    post:
+      summary: Cerrar sesión
+      description: Cierra la sesión del usuario actual
+      tags: [Auth]
+      security: []
+      responses:
+        '200':
+          description: Sesión cerrada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Sesión cerrada
+
+  /auth/me:
+    get:
+      summary: Obtener usuario actual
+      description: Obtiene la información del usuario autenticado
+      tags: [Auth]
+      responses:
+        '200':
+          description: Información del usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ============================================
+  # USERS ENDPOINTS
+  # ============================================
+  /users:
+    get:
+      summary: Listar usuarios
+      description: Obtiene la lista de todos los usuarios (requiere rol DIRECTOR o MANAGER)
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /users/{userId}/offices:
+    get:
+      summary: Obtener oficinas de un usuario
+      description: Obtiene las oficinas asignadas a un usuario específico
+      tags: [Users]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del usuario
+      responses:
+        '200':
+          description: Lista de oficinas del usuario
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Office'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================
+  # OFFICES ENDPOINTS
+  # ============================================
+  /offices:
+    get:
+      summary: Listar oficinas
+      description: Obtiene la lista de todas las oficinas
+      tags: [Offices]
+      responses:
+        '200':
+          description: Lista de oficinas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Office'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      summary: Crear oficina
+      description: Crea una nueva oficina (requiere rol DIRECTOR)
+      tags: [Offices]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfficeInput'
+      responses:
+        '201':
+          description: Oficina creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Office'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /offices/{id}:
+    get:
+      summary: Obtener oficina por ID
+      description: Obtiene los detalles de una oficina específica
+      tags: [Offices]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la oficina
+      responses:
+        '200':
+          description: Detalles de la oficina
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfficeWithDepartments'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Actualizar oficina
+      description: Actualiza los datos de una oficina (requiere rol DIRECTOR)
+      tags: [Offices]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la oficina
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfficeInput'
+      responses:
+        '200':
+          description: Oficina actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Office'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================
+  # DEPARTMENTS ENDPOINTS
+  # ============================================
+  /departments:
+    get:
+      summary: Listar departamentos
+      description: Obtiene la lista de departamentos, opcionalmente filtrados por oficina
+      tags: [Departments]
+      parameters:
+        - name: officeId
+          in: query
+          schema:
+            type: string
+          description: Filtrar por ID de oficina
+      responses:
+        '200':
+          description: Lista de departamentos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Department'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      summary: Crear departamento
+      description: Crea un nuevo departamento
+      tags: [Departments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentInput'
+      responses:
+        '201':
+          description: Departamento creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /departments/{id}:
+    get:
+      summary: Obtener departamento por ID
+      description: Obtiene los detalles de un departamento específico
+      tags: [Departments]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del departamento
+      responses:
+        '200':
+          description: Detalles del departamento
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Actualizar departamento
+      description: Actualiza los datos de un departamento
+      tags: [Departments]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del departamento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentInput'
+      responses:
+        '200':
+          description: Departamento actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Eliminar departamento
+      description: Elimina un departamento
+      tags: [Departments]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del departamento
+      responses:
+        '204':
+          description: Departamento eliminado exitosamente
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================
+  # EMPLOYEES ENDPOINTS
+  # ============================================
+  /employees:
+    get:
+      summary: Listar empleados
+      description: Obtiene la lista de empleados, opcionalmente filtrados por oficina o departamento
+      tags: [Employees]
+      parameters:
+        - name: officeId
+          in: query
+          schema:
+            type: string
+          description: Filtrar por ID de oficina
+        - name: departmentId
+          in: query
+          schema:
+            type: string
+          description: Filtrar por ID de departamento
+      responses:
+        '200':
+          description: Lista de empleados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Employee'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      summary: Crear empleado
+      description: Crea un nuevo empleado
+      tags: [Employees]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeInput'
+      responses:
+        '201':
+          description: Empleado creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /employees/{id}:
+    get:
+      summary: Obtener empleado por ID
+      description: Obtiene los detalles de un empleado específico
+      tags: [Employees]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del empleado
+      responses:
+        '200':
+          description: Detalles del empleado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Actualizar empleado
+      description: Actualiza los datos de un empleado
+      tags: [Employees]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del empleado
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeUpdateInput'
+      responses:
+        '200':
+          description: Empleado actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Eliminar empleado
+      description: Elimina un empleado
+      tags: [Employees]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del empleado
+      responses:
+        '204':
+          description: Empleado eliminado exitosamente
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /employees/{employeeId}/technologies:
+    post:
+      summary: Asignar tecnología a empleado
+      description: Asigna una tecnología a un empleado con nivel y años de experiencia
+      tags: [Employees]
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del empleado
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - technologyId
+                - level
+                - yearsOfExp
+              properties:
+                technologyId:
+                  type: string
+                  example: tech-1
+                level:
+                  $ref: '#/components/schemas/SkillLevel'
+                yearsOfExp:
+                  type: integer
+                  minimum: 0
+                  example: 3
+      responses:
+        '201':
+          description: Tecnología asignada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeTechnology'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ============================================
+  # PROJECTS ENDPOINTS
+  # ============================================
+  /projects:
+    get:
+      summary: Listar proyectos
+      description: Obtiene la lista de proyectos, opcionalmente filtrados por oficina o estado
+      tags: [Projects]
+      parameters:
+        - name: officeId
+          in: query
+          schema:
+            type: string
+          description: Filtrar por ID de oficina
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ProjectStatus'
+          description: Filtrar por estado del proyecto
+      responses:
+        '200':
+          description: Lista de proyectos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      summary: Crear proyecto
+      description: Crea un nuevo proyecto con sus relaciones (tecnologías, equipo, oficinas adicionales)
+      tags: [Projects]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectInput'
+      responses:
+        '201':
+          description: Proyecto creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /projects/{id}:
+    get:
+      summary: Obtener proyecto por ID
+      description: Obtiene los detalles completos de un proyecto específico
+      tags: [Projects]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del proyecto
+      responses:
+        '200':
+          description: Detalles del proyecto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Actualizar proyecto
+      description: Actualiza los datos de un proyecto
+      tags: [Projects]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del proyecto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectUpdateInput'
+      responses:
+        '200':
+          description: Proyecto actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Eliminar proyecto
+      description: Elimina un proyecto
+      tags: [Projects]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del proyecto
+      responses:
+        '204':
+          description: Proyecto eliminado exitosamente
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /projects/{projectId}/employees:
+    post:
+      summary: Asignar empleado a proyecto
+      description: Asigna un empleado a un proyecto con rol y asignación
+      tags: [Projects]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del proyecto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - employeeId
+                - role
+                - allocation
+                - startDate
+              properties:
+                employeeId:
+                  type: string
+                  example: emp-1
+                role:
+                  type: string
+                  example: Developer
+                allocation:
+                  type: integer
+                  minimum: 0
+                  maximum: 100
+                  example: 50
+                startDate:
+                  type: string
+                  format: date-time
+                  example: '2024-01-01T00:00:00Z'
+                endDate:
+                  type: string
+                  format: date-time
+                  nullable: true
+                  example: '2024-12-31T23:59:59Z'
+      responses:
+        '201':
+          description: Empleado asignado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectEmployee'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /projects/{projectId}/employees/{employeeId}:
+    delete:
+      summary: Remover empleado de proyecto
+      description: Remueve un empleado de un proyecto
+      tags: [Projects]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del proyecto
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del empleado
+      responses:
+        '204':
+          description: Empleado removido exitosamente
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /projects/{projectId}/technologies:
+    post:
+      summary: Agregar tecnología a proyecto
+      description: Agrega una tecnología a un proyecto
+      tags: [Projects]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del proyecto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - technologyId
+              properties:
+                technologyId:
+                  type: string
+                  example: tech-1
+      responses:
+        '201':
+          description: Tecnología agregada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectTechnology'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /projects/{projectId}/departments:
+    post:
+      summary: Agregar departamento a proyecto
+      description: Agrega un departamento a un proyecto
+      tags: [Projects]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del proyecto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - departmentId
+              properties:
+                departmentId:
+                  type: string
+                  example: dept-1
+      responses:
+        '201':
+          description: Departamento agregado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDepartment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /projects/{projectId}/offices:
+    post:
+      summary: Agregar oficinas a proyecto
+      description: Agrega una o más oficinas adicionales a un proyecto
+      tags: [Projects]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del proyecto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - officeIds
+              properties:
+                officeIds:
+                  type: array
+                  items:
+                    type: string
+                  example: ['office-1', 'office-2']
+      responses:
+        '201':
+          description: Oficinas agregadas exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectOffice'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ============================================
+  # TECHNOLOGIES ENDPOINTS
+  # ============================================
+  /technologies:
+    get:
+      summary: Listar tecnologías
+      description: Obtiene la lista de todas las tecnologías
+      tags: [Technologies]
+      responses:
+        '200':
+          description: Lista de tecnologías
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Technology'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      summary: Crear tecnología
+      description: Crea una nueva tecnología
+      tags: [Technologies]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TechnologyInput'
+      responses:
+        '201':
+          description: Tecnología creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Technology'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /technologies/{id}:
+    get:
+      summary: Obtener tecnología por ID
+      description: Obtiene los detalles de una tecnología específica
+      tags: [Technologies]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la tecnología
+      responses:
+        '200':
+          description: Detalles de la tecnología
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Technology'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Actualizar tecnología
+      description: Actualiza los datos de una tecnología
+      tags: [Technologies]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la tecnología
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TechnologyInput'
+      responses:
+        '200':
+          description: Tecnología actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Technology'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Eliminar tecnología
+      description: Elimina una tecnología
+      tags: [Technologies]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la tecnología
+      responses:
+        '204':
+          description: Tecnología eliminada exitosamente
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /technologies/{id}/stats:
+    get:
+      summary: Obtener estadísticas de tecnología
+      description: Obtiene estadísticas de uso de una tecnología (empleados y proyectos)
+      tags: [Technologies]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la tecnología
+      responses:
+        '200':
+          description: Estadísticas de la tecnología
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  employeeCount:
+                    type: integer
+                    example: 15
+                  projectCount:
+                    type: integer
+                    example: 8
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /technologies/{id}/employees:
+    get:
+      summary: Obtener empleados con tecnología
+      description: Obtiene la lista de empleados que tienen una tecnología específica
+      tags: [Technologies]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la tecnología
+      responses:
+        '200':
+          description: Lista de empleados con la tecnología
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmployeeTechnology'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /technologies/{id}/projects:
+    get:
+      summary: Obtener proyectos con tecnología
+      description: Obtiene la lista de proyectos que usan una tecnología específica
+      tags: [Technologies]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la tecnología
+      responses:
+        '200':
+          description: Lista de proyectos con la tecnología
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectTechnology'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================
+  # TIME ENTRIES ENDPOINTS
+  # ============================================
+  /time-entries:
+    get:
+      summary: Listar registros de tiempo
+      description: Obtiene la lista de registros de tiempo imputados, opcionalmente filtrados por empleado
+      tags: [Time Entries]
+      parameters:
+        - name: employeeId
+          in: query
+          schema:
+            type: string
+          description: Filtrar por ID de empleado
+      responses:
+        '200':
+          description: Lista de registros de tiempo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimeEntry'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      summary: Crear registro de tiempo
+      description: Crea un nuevo registro de tiempo imputado
+      tags: [Time Entries]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimeEntryInput'
+      responses:
+        '201':
+          description: Registro de tiempo creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeEntry'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /time-entries/{id}:
+    get:
+      summary: Obtener registro de tiempo por ID
+      description: Obtiene los detalles de un registro de tiempo específico
+      tags: [Time Entries]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del registro de tiempo
+      responses:
+        '200':
+          description: Detalles del registro de tiempo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeEntry'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Actualizar registro de tiempo
+      description: Actualiza los datos de un registro de tiempo
+      tags: [Time Entries]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del registro de tiempo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimeEntryUpdateInput'
+      responses:
+        '200':
+          description: Registro de tiempo actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeEntry'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Eliminar registro de tiempo
+      description: Elimina un registro de tiempo
+      tags: [Time Entries]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del registro de tiempo
+      responses:
+        '204':
+          description: Registro de tiempo eliminado exitosamente
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================
+  # EXPENSES ENDPOINTS
+  # ============================================
+  /projects/{projectId}/expenses:
+    get:
+      summary: Listar gastos de proyecto
+      description: Obtiene la lista de gastos de un proyecto específico
+      tags: [Expenses]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del proyecto
+      responses:
+        '200':
+          description: Lista de gastos del proyecto
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectExpense'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      summary: Crear gasto de proyecto
+      description: Crea un nuevo gasto asociado a un proyecto
+      tags: [Expenses]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del proyecto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectExpenseInput'
+      responses:
+        '201':
+          description: Gasto creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectExpense'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /projects/expenses/{id}:
+    get:
+      summary: Obtener gasto por ID
+      description: Obtiene los detalles de un gasto específico
+      tags: [Expenses]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del gasto
+      responses:
+        '200':
+          description: Detalles del gasto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectExpense'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Actualizar gasto
+      description: Actualiza los datos de un gasto
+      tags: [Expenses]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del gasto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectExpenseInput'
+      responses:
+        '200':
+          description: Gasto actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectExpense'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Eliminar gasto
+      description: Elimina un gasto
+      tags: [Expenses]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del gasto
+      responses:
+        '204':
+          description: Gasto eliminado exitosamente
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================
+  # INVOICES ENDPOINTS
+  # ============================================
+  /projects/{projectId}/invoices:
+    get:
+      summary: Listar facturas de proyecto
+      description: Obtiene la lista de facturas de un proyecto específico
+      tags: [Invoices]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del proyecto
+      responses:
+        '200':
+          description: Lista de facturas del proyecto
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invoice'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      summary: Crear factura
+      description: Crea una nueva factura asociada a un proyecto
+      tags: [Invoices]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del proyecto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoiceInput'
+      responses:
+        '201':
+          description: Factura creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /projects/invoices/{id}:
+    get:
+      summary: Obtener factura por ID
+      description: Obtiene los detalles de una factura específica
+      tags: [Invoices]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la factura
+      responses:
+        '200':
+          description: Detalles de la factura
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Actualizar factura
+      description: Actualiza los datos de una factura
+      tags: [Invoices]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la factura
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoiceInput'
+      responses:
+        '200':
+          description: Factura actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Eliminar factura
+      description: Elimina una factura
+      tags: [Invoices]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de la factura
+      responses:
+        '204':
+          description: Factura eliminada exitosamente
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================
+  # DASHBOARD ENDPOINTS
+  # ============================================
+  /dashboard/stats:
+    get:
+      summary: Obtener estadísticas del dashboard
+      description: Obtiene estadísticas generales del sistema, opcionalmente filtradas por oficinas
+      tags: [Dashboard]
+      parameters:
+        - name: officeIds
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          description: Filtrar por IDs de oficinas (puede ser un array)
+          style: form
+          explode: true
+      responses:
+        '200':
+          description: Estadísticas del dashboard
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardStats'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT obtenido mediante el endpoint de login
+
+  schemas:
+    # Enums
+    UserRole:
+      type: string
+      enum: [EMPLOYEE, MANAGER, DIRECTOR]
+      description: Rol del usuario en el sistema
+
+    EmployeeStatus:
+      type: string
+      enum: [ACTIVE, INACTIVE, ON_LEAVE, TERMINATED]
+      description: Estado del empleado
+
+    ProjectStatus:
+      type: string
+      enum: [PLANNING, ACTIVE, ON_HOLD, COMPLETED, CANCELLED]
+      description: Estado del proyecto
+
+    Priority:
+      type: string
+      enum: [LOW, MEDIUM, HIGH, URGENT]
+      description: Prioridad del proyecto
+
+    TechCategory:
+      type: string
+      enum: [FRONTEND, BACKEND, DATABASE, DEVOPS, MOBILE, DESIGN, TESTING, OTHER]
+      description: Categoría de la tecnología
+
+    SkillLevel:
+      type: string
+      enum: [BEGINNER, INTERMEDIATE, ADVANCED, EXPERT]
+      description: Nivel de habilidad
+
+    InvoiceStatus:
+      type: string
+      enum: [DRAFT, SENT, PAID, OVERDUE]
+      description: Estado de la factura
+
+    ExpenseCategory:
+      type: string
+      enum: [SERVER, INFRASTRUCTURE, LICENSE, TOOL, SERVICE, OTHER]
+      description: Categoría del gasto
+
+    # User Schemas
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: user-1
+        email:
+          type: string
+          format: email
+          example: usuario@excelia.com
+        role:
+          $ref: '#/components/schemas/UserRole'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        employee:
+          $ref: '#/components/schemas/Employee'
+          nullable: true
+
+    UserWithToken:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            token:
+              type: string
+              description: Token JWT para autenticación
+              example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+    # Office Schemas
+    Office:
+      type: object
+      properties:
+        id:
+          type: string
+          example: office-1
+        name:
+          type: string
+          example: Madrid
+        country:
+          type: string
+          example: España
+        address:
+          type: string
+          nullable: true
+          example: Calle Gran Vía 1
+        timezone:
+          type: string
+          example: Europe/Madrid
+        companyId:
+          type: string
+          example: company-1
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    OfficeInput:
+      type: object
+      required:
+        - id
+        - name
+        - country
+        - timezone
+        - companyId
+      properties:
+        id:
+          type: string
+          example: office-1
+        name:
+          type: string
+          example: Madrid
+        country:
+          type: string
+          example: España
+        address:
+          type: string
+          nullable: true
+        timezone:
+          type: string
+          example: Europe/Madrid
+        companyId:
+          type: string
+          example: company-1
+
+    OfficeWithDepartments:
+      allOf:
+        - $ref: '#/components/schemas/Office'
+        - type: object
+          properties:
+            departments:
+              type: array
+              items:
+                $ref: '#/components/schemas/Department'
+
+    # Department Schemas
+    Department:
+      type: object
+      properties:
+        id:
+          type: string
+          example: dept-1
+        name:
+          type: string
+          example: Desarrollo
+        description:
+          type: string
+          nullable: true
+          example: Departamento de desarrollo de software
+        officeId:
+          type: string
+          example: office-1
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        office:
+          $ref: '#/components/schemas/Office'
+
+    DepartmentInput:
+      type: object
+      required:
+        - id
+        - name
+        - officeId
+      properties:
+        id:
+          type: string
+          example: dept-1
+        name:
+          type: string
+          example: Desarrollo
+        description:
+          type: string
+          nullable: true
+        officeId:
+          type: string
+          example: office-1
+
+    # Employee Schemas
+    Employee:
+      type: object
+      properties:
+        id:
+          type: string
+          example: emp-1
+        userId:
+          type: string
+          example: user-1
+        name:
+          type: string
+          example: Juan Pérez
+        position:
+          type: string
+          example: Senior Developer
+        departmentId:
+          type: string
+          nullable: true
+          example: dept-1
+        phone:
+          type: string
+          nullable: true
+          example: '+34 600 000 000'
+        avatarUrl:
+          type: string
+          nullable: true
+          example: https://example.com/avatar.jpg
+        officeId:
+          type: string
+          example: office-1
+        status:
+          $ref: '#/components/schemas/EmployeeStatus'
+        hireDate:
+          type: string
+          format: date-time
+        salary:
+          type: number
+          format: double
+          nullable: true
+          example: 50000.00
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+        office:
+          $ref: '#/components/schemas/Office'
+        department:
+          $ref: '#/components/schemas/Department'
+          nullable: true
+
+    EmployeeDetail:
+      allOf:
+        - $ref: '#/components/schemas/Employee'
+        - type: object
+          properties:
+            projectEmployees:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProjectEmployee'
+            employeeTechnologies:
+              type: array
+              items:
+                $ref: '#/components/schemas/EmployeeTechnology'
+
+    EmployeeInput:
+      type: object
+      required:
+        - id
+        - userId
+        - name
+        - position
+        - officeId
+        - status
+        - hireDate
+      properties:
+        id:
+          type: string
+          example: emp-1
+        userId:
+          type: string
+          example: user-1
+        name:
+          type: string
+          example: Juan Pérez
+        position:
+          type: string
+          example: Senior Developer
+        departmentId:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        avatarUrl:
+          type: string
+          nullable: true
+        officeId:
+          type: string
+          example: office-1
+        status:
+          $ref: '#/components/schemas/EmployeeStatus'
+        hireDate:
+          type: string
+          format: date-time
+        salary:
+          type: number
+          format: double
+          nullable: true
+
+    EmployeeUpdateInput:
+      type: object
+      properties:
+        name:
+          type: string
+        position:
+          type: string
+        departmentId:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        officeId:
+          type: string
+        status:
+          $ref: '#/components/schemas/EmployeeStatus'
+        hireDate:
+          type: string
+          format: date-time
+        salary:
+          type: number
+          format: double
+          nullable: true
+
+    # Project Schemas
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+          example: project-1
+        name:
+          type: string
+          example: Sistema de Gestión
+        description:
+          type: string
+          nullable: true
+          example: Sistema interno de gestión de proyectos
+        status:
+          $ref: '#/components/schemas/ProjectStatus'
+        priority:
+          $ref: '#/components/schemas/Priority'
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+          nullable: true
+        clientName:
+          type: string
+          nullable: true
+          example: Cliente ABC
+        budget:
+          type: number
+          format: double
+          nullable: true
+          example: 100000.00
+        isInternal:
+          type: boolean
+          default: false
+        officeId:
+          type: string
+          example: office-1
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        office:
+          $ref: '#/components/schemas/Office'
+        projectEmployees:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectEmployee'
+        projectTechnologies:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectTechnology'
+        projectDepartments:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectDepartment'
+        projectOffices:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectOffice'
+
+    ProjectDetail:
+      allOf:
+        - $ref: '#/components/schemas/Project'
+        - type: object
+          properties:
+            expenses:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProjectExpense'
+            invoices:
+              type: array
+              items:
+                $ref: '#/components/schemas/Invoice'
+
+    ProjectInput:
+      type: object
+      required:
+        - name
+        - startDate
+        - officeId
+      properties:
+        name:
+          type: string
+          example: Sistema de Gestión
+        description:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/ProjectStatus'
+          default: PLANNING
+        priority:
+          $ref: '#/components/schemas/Priority'
+          default: MEDIUM
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+          nullable: true
+        clientName:
+          type: string
+          nullable: true
+        budget:
+          type: number
+          format: double
+          nullable: true
+        isInternal:
+          type: boolean
+          default: false
+        officeId:
+          type: string
+          example: office-1
+        technologies:
+          type: array
+          items:
+            type: string
+          description: Array de IDs de tecnologías
+          example: ['tech-1', 'tech-2']
+        team:
+          type: array
+          items:
+            type: object
+            properties:
+              employeeId:
+                type: string
+              role:
+                type: string
+              allocation:
+                type: integer
+                minimum: 0
+                maximum: 100
+          description: Array de miembros del equipo
+        additionalOffices:
+          type: array
+          items:
+            type: string
+          description: Array de IDs de oficinas adicionales
+
+    ProjectUpdateInput:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/ProjectStatus'
+        priority:
+          $ref: '#/components/schemas/Priority'
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+          nullable: true
+        clientName:
+          type: string
+          nullable: true
+        budget:
+          type: number
+          format: double
+          nullable: true
+        isInternal:
+          type: boolean
+        officeId:
+          type: string
+
+    ProjectEmployee:
+      type: object
+      properties:
+        id:
+          type: string
+          example: pe-1
+        projectId:
+          type: string
+          example: project-1
+        employeeId:
+          type: string
+          example: emp-1
+        role:
+          type: string
+          example: Developer
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+          nullable: true
+        allocation:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 50
+        hours:
+          type: integer
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        employee:
+          $ref: '#/components/schemas/Employee'
+        project:
+          $ref: '#/components/schemas/Project'
+
+    ProjectTechnology:
+      type: object
+      properties:
+        id:
+          type: string
+          example: pt-1
+        projectId:
+          type: string
+          example: project-1
+        technologyId:
+          type: string
+          example: tech-1
+        project:
+          $ref: '#/components/schemas/Project'
+        technology:
+          $ref: '#/components/schemas/Technology'
+
+    ProjectDepartment:
+      type: object
+      properties:
+        id:
+          type: string
+          example: pd-1
+        projectId:
+          type: string
+          example: project-1
+        departmentId:
+          type: string
+          example: dept-1
+        createdAt:
+          type: string
+          format: date-time
+        project:
+          $ref: '#/components/schemas/Project'
+        department:
+          $ref: '#/components/schemas/Department'
+
+    ProjectOffice:
+      type: object
+      properties:
+        id:
+          type: string
+          example: po-1
+        projectId:
+          type: string
+          example: project-1
+        officeId:
+          type: string
+          example: office-1
+        createdAt:
+          type: string
+          format: date-time
+        project:
+          $ref: '#/components/schemas/Project'
+        office:
+          $ref: '#/components/schemas/Office'
+
+    # Technology Schemas
+    Technology:
+      type: object
+      properties:
+        id:
+          type: string
+          example: tech-1
+        name:
+          type: string
+          example: React
+        category:
+          $ref: '#/components/schemas/TechCategory'
+        iconUrl:
+          type: string
+          nullable: true
+          example: https://example.com/react-icon.svg
+        color:
+          type: string
+          nullable: true
+          example: '#61DAFB'
+        createdAt:
+          type: string
+          format: date-time
+
+    TechnologyInput:
+      type: object
+      required:
+        - id
+        - name
+        - category
+      properties:
+        id:
+          type: string
+          example: tech-1
+        name:
+          type: string
+          example: React
+        category:
+          $ref: '#/components/schemas/TechCategory'
+        iconUrl:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+
+    EmployeeTechnology:
+      type: object
+      properties:
+        id:
+          type: string
+          example: et-1
+        employeeId:
+          type: string
+          example: emp-1
+        technologyId:
+          type: string
+          example: tech-1
+        level:
+          $ref: '#/components/schemas/SkillLevel'
+        yearsOfExp:
+          type: integer
+          minimum: 0
+          example: 3
+        createdAt:
+          type: string
+          format: date-time
+        employee:
+          $ref: '#/components/schemas/Employee'
+        technology:
+          $ref: '#/components/schemas/Technology'
+
+    # Time Entry Schemas
+    TimeEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          example: te-1
+        employeeId:
+          type: string
+          example: emp-1
+        projectId:
+          type: string
+          example: project-1
+        hours:
+          type: number
+          format: double
+          example: 8.5
+        description:
+          type: string
+          nullable: true
+          example: Desarrollo de funcionalidad X
+        date:
+          type: string
+          format: date
+          example: '2024-01-15'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        employee:
+          $ref: '#/components/schemas/Employee'
+        project:
+          $ref: '#/components/schemas/Project'
+
+    TimeEntryInput:
+      type: object
+      required:
+        - employeeId
+        - projectId
+        - hours
+        - date
+      properties:
+        employeeId:
+          type: string
+          example: emp-1
+        projectId:
+          type: string
+          example: project-1
+        hours:
+          type: number
+          format: double
+          example: 8.5
+        description:
+          type: string
+          nullable: true
+        date:
+          type: string
+          format: date
+          example: '2024-01-15'
+
+    TimeEntryUpdateInput:
+      type: object
+      properties:
+        employeeId:
+          type: string
+        projectId:
+          type: string
+        hours:
+          type: number
+          format: double
+        description:
+          type: string
+          nullable: true
+        date:
+          type: string
+          format: date
+
+    # Expense Schemas
+    ProjectExpense:
+      type: object
+      properties:
+        id:
+          type: string
+          example: expense-1
+        projectId:
+          type: string
+          example: project-1
+        category:
+          $ref: '#/components/schemas/ExpenseCategory'
+        description:
+          type: string
+          example: Servidor AWS
+        cost:
+          type: number
+          format: double
+          example: 500.00
+        startDate:
+          type: string
+          format: date
+          example: '2024-01-01'
+        endDate:
+          type: string
+          format: date
+          nullable: true
+          example: '2024-12-31'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        project:
+          $ref: '#/components/schemas/Project'
+
+    ProjectExpenseInput:
+      type: object
+      required:
+        - category
+        - description
+        - cost
+        - startDate
+      properties:
+        category:
+          $ref: '#/components/schemas/ExpenseCategory'
+        description:
+          type: string
+          example: Servidor AWS
+        cost:
+          type: number
+          format: double
+          example: 500.00
+        startDate:
+          type: string
+          format: date
+          example: '2024-01-01'
+        endDate:
+          type: string
+          format: date
+          nullable: true
+          example: '2024-12-31'
+
+    # Invoice Schemas
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: string
+          example: invoice-1
+        invoiceNumber:
+          type: string
+          example: INV-2024-001
+        projectId:
+          type: string
+          example: project-1
+        amount:
+          type: number
+          format: double
+          example: 10000.00
+        issueDate:
+          type: string
+          format: date
+          example: '2024-01-15'
+        dueDate:
+          type: string
+          format: date
+          example: '2024-02-15'
+        status:
+          $ref: '#/components/schemas/InvoiceStatus'
+        description:
+          type: string
+          nullable: true
+          example: Factura por servicios de desarrollo
+        pdfUrl:
+          type: string
+          nullable: true
+          example: https://example.com/invoices/inv-2024-001.pdf
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        project:
+          $ref: '#/components/schemas/Project'
+
+    InvoiceInput:
+      type: object
+      required:
+        - amount
+        - issueDate
+        - dueDate
+      properties:
+        invoiceNumber:
+          type: string
+          nullable: true
+          example: INV-2024-001
+          description: Si no se proporciona, se genera automáticamente
+        amount:
+          type: number
+          format: double
+          example: 10000.00
+        issueDate:
+          type: string
+          format: date
+          example: '2024-01-15'
+        dueDate:
+          type: string
+          format: date
+          example: '2024-02-15'
+        status:
+          $ref: '#/components/schemas/InvoiceStatus'
+          default: DRAFT
+        description:
+          type: string
+          nullable: true
+        pdfUrl:
+          type: string
+          nullable: true
+
+    # Dashboard Schemas
+    DashboardStats:
+      type: object
+      properties:
+        totalProjects:
+          type: integer
+          example: 25
+        activeProjects:
+          type: integer
+          example: 12
+        totalEmployees:
+          type: integer
+          example: 150
+        totalDepartments:
+          type: integer
+          example: 5
+        completedProjectsThisMonth:
+          type: integer
+          example: 3
+        projectsByStatus:
+          type: object
+          properties:
+            PLANNING:
+              type: integer
+              example: 5
+            ACTIVE:
+              type: integer
+              example: 12
+            ON_HOLD:
+              type: integer
+              example: 2
+            COMPLETED:
+              type: integer
+              example: 5
+            CANCELLED:
+              type: integer
+              example: 1
+        employeesByDepartment:
+          type: object
+          additionalProperties:
+            type: integer
+          example:
+            Desarrollo: 50
+            QA: 20
+            DevOps: 15
+        annualBudget:
+          type: number
+          format: double
+          example: 5000000.00
+        annualExpenses:
+          type: number
+          format: double
+          example: 3000000.00
+        annualProfit:
+          type: number
+          format: double
+          example: 2000000.00
+
+  responses:
+    BadRequest:
+      description: Solicitud incorrecta
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Campos requeridos faltantes
+
+    Unauthorized:
+      description: No autenticado o token inválido
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Token no proporcionado
+
+    Forbidden:
+      description: No autorizado para realizar esta acción
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: No autorizado
+
+    NotFound:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Recurso no encontrado
+
+    InternalServerError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Error interno del servidor
+

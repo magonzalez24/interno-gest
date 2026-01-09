@@ -18,7 +18,27 @@ export const getDepartments = async (req: AuthRequest, res: Response) => {
       orderBy: { name: 'asc' },
     });
 
-    res.json(departments);
+    // Transformar la respuesta para incluir country y convertir office en array
+    const transformedDepartments = departments.map((dept) => {
+      const { office, ...rest } = dept;
+      return {
+        ...rest,
+        country: office.country,
+        offices: [office],
+      };
+    });
+
+    // Agrupar por país
+    const groupedByCountry = transformedDepartments.reduce((acc, dept) => {
+      const country = dept.country;
+      if (!acc[country]) {
+        acc[country] = [];
+      }
+      acc[country].push(dept);
+      return acc;
+    }, {} as Record<string, typeof transformedDepartments>);
+
+    res.json(groupedByCountry);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -38,7 +58,15 @@ export const getDepartmentById = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Departamento no encontrado' });
     }
 
-    res.json(department);
+    // Transformar la respuesta para incluir country y convertir office en array
+    const { office, ...rest } = department;
+    const transformedDepartment = {
+      ...rest,
+      country: office.country,
+      offices: [office],
+    };
+
+    res.json(transformedDepartment);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

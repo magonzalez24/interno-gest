@@ -1,9 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Pencil } from 'lucide-react';
+import { ATLASSIAN_LINK } from '@/const/Links/Atlassian';
+import { useNavigate } from 'react-router-dom';
 
 export const ProfilePage = () => {
   const { user } = useAuth();
+
+
+  const navigate = useNavigate();
 
   const getInitials = () => {
     if (user?.employee?.name) {
@@ -28,6 +35,7 @@ export const ProfilePage = () => {
 
       <Card>
         <CardHeader>
+          <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
               <AvatarFallback className="text-lg">{getInitials()}</AvatarFallback>
@@ -35,6 +43,13 @@ export const ProfilePage = () => {
             <div>
               <CardTitle>{user?.employee?.name || user?.email}</CardTitle>
               <p className="text-muted-foreground">{user?.employee?.position || user?.role}</p>
+            </div>
+          </div>
+            <div>
+              <Button variant="outline" onClick={() => window.open(ATLASSIAN_LINK, '_blank')}>
+                <Pencil className="h-4 w-4" />
+                Vincular Jira
+              </Button>
             </div>
           </div>
         </CardHeader>

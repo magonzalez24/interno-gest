@@ -1,9 +1,16 @@
 import { useState, useEffect } from 'react';
-import type { Department } from '../types/database';
+import type { Department, Office } from '../types/database';
 import { api } from '../lib/api';
 
+type DepartmentWithOffice = Department & {
+  offices?: Office[];
+  country?: string;
+};
+
+type DepartmentsByCountry = Record<string, DepartmentWithOffice[]>;
+
 export const useDepartments = (officeId?: string) => {
-  const [departments, setDepartments] = useState<Department[]>([]);
+  const [departments, setDepartments] = useState<DepartmentsByCountry>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -11,7 +18,7 @@ export const useDepartments = (officeId?: string) => {
     try {
       setLoading(true);
       const data = await api.getDepartments(officeId);
-      setDepartments(data);
+      setDepartments(data as DepartmentsByCountry);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Error loading departments'));

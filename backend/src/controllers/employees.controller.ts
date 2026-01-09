@@ -47,16 +47,39 @@ export const getEmployeeById = async (req: AuthRequest, res: Response) => {
             role: true,
           },
         },
-        office: true,
-        department: true,
+        office: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        department: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
         projectEmployees: {
           include: {
-            project: true,
+            project: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+              },
+            },
           },
         },
         employeeTechnologies: {
           include: {
-            technology: true,
+            technology: {
+              select: {
+                id: true,
+                name: true,
+                category: true,
+              },
+            },
           },
         },
       },
@@ -66,7 +89,19 @@ export const getEmployeeById = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Empleado no encontrado' });
     }
 
-    res.json(employee);
+    // Transformar la respuesta para eliminar campos duplicados y formatear employeeTechnologies
+    const { departmentId, officeId, employeeTechnologies, ...employeeData } = employee;
+    
+    // Formatear employeeTechnologies para solo incluir technology y yearsOfExp
+    const formattedTechnologies = employeeTechnologies.map((et: any) => ({
+      technology: et.technology,
+      yearsOfExp: et.yearsOfExp,
+    }));
+    
+    res.json({
+      ...employeeData,
+      employeeTechnologies: formattedTechnologies,
+    });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

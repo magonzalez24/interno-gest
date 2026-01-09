@@ -139,7 +139,11 @@ export const api: Api = {
   // Departments
   getDepartments: async (officeId?: string) => {
     const query = officeId ? `?officeId=${officeId}` : '';
-    return fetchApi<Department[]>(`/departments${query}`);
+    type DepartmentWithOffice = Department & {
+      offices?: Office[];
+      country?: string;
+    };
+    return fetchApi<Record<string, DepartmentWithOffice[]>>(`/departments${query}`);
   },
 
   getDepartmentById: async (id: string) => {

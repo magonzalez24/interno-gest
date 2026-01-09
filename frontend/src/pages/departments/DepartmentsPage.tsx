@@ -15,15 +15,6 @@ export const DepartmentsPage = () => {
     return <div>Cargando departamentos...</div>;
   }
 
-  const departmentsByOffice = departments.reduce((acc, dept) => {
-    const officeName = dept.officeId || 'Sin sede';
-    if (!acc[officeName]) {
-      acc[officeName] = [];
-    }
-    acc[officeName].push(dept);
-    return acc;
-  }, {} as Record<string, typeof departments>);
-
   return (
     <div className="space-y-6">
       <div>
@@ -33,23 +24,31 @@ export const DepartmentsPage = () => {
         </p>
       </div>
 
-      {Object.entries(departmentsByOffice).map(([officeName, depts]) => (
-        <div key={officeName} className="space-y-4">
-          <h2 className="text-xl font-semibold">{officeName}</h2>
+      {Object.entries(departments).map(([country, depts]) => (
+        <div key={country} className="space-y-4">
+          <h2 className="text-xl font-semibold">{country}</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {depts.map((dept) => (
-              <Link key={dept.id} to={`/departments/${dept.id}`}>
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-5 w-5 text-primary" />
-                      <CardTitle>{dept.name}</CardTitle>
-                    </div>
-                    <CardDescription>{dept.description || 'Sin descripción'}</CardDescription>
-                  </CardHeader>
-                </Card>
-              </Link>
-            ))}
+            {depts.map((dept) => {
+              const officeName = dept.offices?.[0]?.name;
+              return (
+                <Link key={dept.id} to={`/departments/${dept.id}`}>
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-5 w-5 text-primary" />
+                        <CardTitle>{dept.name}</CardTitle>
+                      </div>
+                      <CardDescription>
+                        {officeName && (
+                          <span className="block text-sm font-medium mb-1">{officeName}</span>
+                        )}
+                        {dept.description || 'Sin descripción'}
+                      </CardDescription>
+                    </CardHeader>
+                  </Card>
+                </Link>
+              );
+            })}
           </div>
         </div>
       ))}

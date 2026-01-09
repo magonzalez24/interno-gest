@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { api } from '@/lib/api';
-import type { Employee } from '@/types/database';
+import type { Employee, ProjectEmployee, EmployeeTechnology } from '@/types/database';
 import { formatDate, formatCurrency } from '@/lib/utils';
 import { ArrowLeft, Edit } from 'lucide-react';
 import { SkillLevel } from '@/types/database';
@@ -70,10 +70,14 @@ export const EmployeeDetailPage = () => {
     }
   };
 
-  const currentProjects = employee.projects?.filter(
-    pe => !pe.endDate || new Date(pe.endDate) > new Date()
-  ) || [];
-  const totalAllocation = currentProjects.reduce((sum, pe) => sum + pe.allocation, 0);
+  // El backend devuelve projectEmployees, no projects
+  const projectEmployees = ((employee as any).projectEmployees || employee.projects || []) as ProjectEmployee[];
+  const currentProjects = projectEmployees.filter((pe: ProjectEmployee) => {
+    if (!pe.endDate) return true;
+    const endDate = pe.endDate instanceof Date ? pe.endDate : new Date(pe.endDate);
+    return endDate > new Date();
+  });
+  const totalAllocation = currentProjects.reduce((sum: number, pe: ProjectEmployee) => sum + (pe.allocation || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -182,25 +186,29 @@ export const EmployeeDetailPage = () => {
               <CardTitle>Stack Tecnológico</CardTitle>
             </CardHeader>
             <CardContent>
-              {employee.technologies && employee.technologies.length > 0 ? (
-                <div className="grid gap-4 md:grid-cols-2">
-                  {employee.technologies.map((et) => (
-                    <div key={et.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <p className="font-medium">{et.technology?.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {et.yearsOfExp} años de experiencia
-                        </p>
+              {/* El backend devuelve employeeTechnologies, no technologies */}
+              {(() => {
+                const technologies = ((employee as any).employeeTechnologies || employee.technologies || []) as EmployeeTechnology[];
+                return technologies.length > 0 ? (
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {technologies.map((et: EmployeeTechnology) => (
+                      <div key={et.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <p className="font-medium">{et.technology?.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {et.yearsOfExp} años de experiencia
+                          </p>
+                        </div>
+                        <Badge className={getLevelColor(et.level)}>
+                          {et.level}
+                        </Badge>
                       </div>
-                      <Badge className={getLevelColor(et.level)}>
-                        {et.level}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground">No hay tecnologías asignadas</p>
-              )}
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">No hay tecnologías asignadas</p>
+                );
+              })()}
             </CardContent>
           </Card>
         </TabsContent>
@@ -213,7 +221,7 @@ export const EmployeeDetailPage = () => {
             <CardContent>
               {currentProjects.length > 0 ? (
                 <div className="space-y-4">
-                  {currentProjects.map((pe) => (
+                  {currentProjects.map((pe: ProjectEmployee) => (
                     <Link key={pe.id} to={`/projects/${pe.projectId}`}>
                       <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent">
                         <div>

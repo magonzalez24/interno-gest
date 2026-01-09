@@ -34,7 +34,7 @@ export interface Api {
   updateOffice: (id: string, data: Partial<Office>) => Promise<Office>;
   
   // Departments
-  getDepartments: (officeId?: string) => Promise<Department[]>;
+  getDepartments: (officeId?: string) => Promise<Record<string, (Department & { offices?: Office[]; country?: string })[]>>;
   getDepartmentById: (id: string) => Promise<Department>;
   createDepartment: (data: Partial<Department>) => Promise<Department>;
   updateDepartment: (id: string, data: Partial<Department>) => Promise<Department>;
